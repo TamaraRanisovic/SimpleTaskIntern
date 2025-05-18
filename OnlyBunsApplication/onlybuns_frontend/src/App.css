@@ -1,0 +1,162 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+@import 'leaflet/dist/leaflet.css';
+
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.myheading
+{
+  color: red;
+  margin: 30px;
+  font-size: 60px;
+}
+
+.my_Card
+{
+  margin: 30px;
+
+}
+
+.ProductInfoDiv
+{
+  height: 600px;
+}
+
+.productImage
+{
+  width: 50%;
+  height: 400px;
+  margin-top: 50px;
+}
+
+.secondDivProduct
+{
+  padding: 50px;
+}
+
+.avoffer
+{
+  margin-top: 20px;
+}
+
+.buyNowButton
+{
+  background-color: #FB641B;
+  border-radius: 5px;
+  color: white;
+  border: 1px solid black;
+  font-weight: bold;
+  width: 200px;
+  padding: 10px;
+}
+
+.addTocartButton
+{
+  background-color: #FF9F00;
+  border-radius: 5px;
+  color: white;
+  border: 1px solid black;
+  font-weight: bold;
+  width: 200px;
+  padding: 10px;
+}
+
+.place_order_btn
+{
+  margin: 40px;
+}
+
+.my_login_div
+{
+  margin-top: 150px;
+  border: 5px solid black;
+  border-radius: 25px;
+  height: 500px;
+  padding: 30px;
+}
+
+.myproduct_insert_div
+{
+  padding: 100px;
+  height: 900px;
+}
+
+.Function_insert_category
+{
+  padding: 100px;
+  height: 900px;
+}
+
+.datamsg
+{
+  margin-top: 30px;
+}
+
+.p-datatable-custom .p-datatable {
+  border: 1px solid #dee2e6;
+}
+
+.p-datatable-custom .p-datatable-thead > tr > th {
+  background-color: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  font-weight: bold;
+}
+
+.p-datatable-custom .p-datatable-tbody > tr > td,
+.p-datatable-custom .p-datatable-tfoot > tr > td {
+  border: 1px solid #dee2e6;
+}
+
+/* Add this CSS in your stylesheet or in a <style> tag in your component */
+
+.company-dropdown .p-dropdown-label {
+  font-size: 14px; /* Adjust the font size */
+  color: #333; /* Set the text color */
+}
+
+.company-dropdown .p-dropdown-trigger {
+  border: 1px solid #ccc; /* Set border styles */
+}
+
+.company-dropdown .p-dropdown-trigger:hover {
+  border-color: #555; /* Change border color on hover */
+}
+
+
