@@ -1,15 +1,8 @@
 package com.developer.onlybuns.dto.request;
 
-import com.developer.onlybuns.entity.Korisnik;
-import com.developer.onlybuns.service.impl.KorisnikServiceImpl;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Claims;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
 import java.util.HashMap;

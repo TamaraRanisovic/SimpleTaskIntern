@@ -15,27 +15,19 @@ import logo from './photos/posticon.png';
 const defaultTheme = createTheme();
 
 export default function Registracija() {
-  const [ime, setIme] = useState('');
-  const [prezime, setPrezime] = useState('');
-  const [ulica, setUlica] = useState('');
-  const [grad, setGrad] = useState('');
-  const [drzava, setDrzava] = useState('');
-  const [broj, setBroj] = useState('');
+  const [name, setIme] = useState('');
+  const [surname, setPrezime] = useState('');
+  const [phoneNumber, setBroj] = useState('');
   const [brojError, setBrojError] = useState(false);
   const [email, setEmail] = useState('');
-  const [korisnickoIme, setKorisnickoIme] = useState('');
-  const [g_duzina, setG_duzina] = useState('');
-  const [g_sirina, setG_sirina] = useState('');
+  const [username, setKorisnickoIme] = useState('');
   const [emailError, setEmailError] = useState(false);
   const [korisnickoImeError, setKorisnickoImeError] = useState(false);
-  const [UlicaError, setUlicaError] = useState(false);
-  const [GradError, setGradError] = useState(false);
-  const [DrzavaError, setDrzavaError] = useState(false);
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
   const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [uloga, setUloga] = useState('REGISTROVANI_KORISNIK');
+  const [role, setUloga] = useState('REGISTERED_USER');
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState('');
   const isMounted = useRef(true);
@@ -61,20 +53,6 @@ export default function Registracija() {
     return korisnickoImeRegex.test(inputKorisnickoIme);
   };
 
-  const validateUlicaBroj = (inputUlicaBroj) => {
-    const ulicaBrojRegex = /^[a-zA-Z0-9\s.,-]{5,100}$/;
-    return ulicaBrojRegex.test(inputUlicaBroj);
-  };
-
-  const validateGrad = (inputGrad) => {
-    const gradRegex = /^[a-zA-Z\s-]{2,50}$/;
-    return gradRegex.test(inputGrad);
-  };
-
-  const validateDrzava = (inputDrzava) => {
-    const drzavaRegex = /^[a-zA-Z\s-]{2,50}$/;
-    return drzavaRegex.test(inputDrzava);
-  };
 
   const handleEmailChange = (e) => {
     const newEmail = e.target.value;
@@ -86,24 +64,6 @@ export default function Registracija() {
     const newKorisnickoIme = e.target.value;
     setKorisnickoIme(newKorisnickoIme);
     setKorisnickoImeError(!validateKorisnickoIme(newKorisnickoIme));
-  };
-
-  const handleStreetAddressChange = (e) => {
-    const newStreetAddress = e.target.value;
-    setUlica(newStreetAddress);
-    setUlicaError(!validateUlicaBroj(newStreetAddress));
-  };
-
-  const handleCityChange = (e) => {
-    const newCity = e.target.value;
-    setGrad(newCity);
-    setGradError(!validateGrad(newCity));
-  };
-
-  const handleCountryChange = (e) => {
-    const newCountry = e.target.value;
-    setDrzava(newCountry);
-    setDrzavaError(!validateDrzava(newCountry));
   };
 
 
@@ -124,17 +84,14 @@ export default function Registracija() {
 
   const checkUsernameExists = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/registrovaniKorisnik/check-username?username=${korisnickoIme}`);
+      const response = await fetch(`http://localhost:8080/registrovaniKorisnik/check-username?username=${username}`);
       if (!response.ok) {
         console.error("Network response was not ok");
         return false; // Assume the username doesn't exist in case of network errors
       }
   
       const data = await response.json();
-  
-      // Check if the username exists based on the response
 
-      //const exist = ;
       return data.includes("true"); // Username doesn't exist, return message
     } catch (error) {
       console.error("Error checking username:", error);
@@ -157,12 +114,12 @@ export default function Registracija() {
       return;
     }
 
-    if (!validateBroj(broj)) {
+    if (!validateBroj(phoneNumber)) {
       setErrorMessage('Enter valid phone number.');
       return;
     }
 
-    if (!korisnickoIme || !ime || !prezime || !ulica || !grad || !drzava || !broj || !email || !password || !repeatPassword) {
+    if (!username || !name || !surname || !phoneNumber || !email || !password || !repeatPassword) {
       setErrorMessage('Enter valid data.');
       return;
     }
@@ -180,26 +137,19 @@ export default function Registracija() {
     }
 
     const korisnik = {
-      korisnickoIme,
-      ime,
-      prezime,
-      broj,
+      korisnickoIme: username,
+      ime: name,
+      prezime: surname,
+      broj: phoneNumber,
       email,
       password,
-      uloga,
-      lokacija: {
-        ulica,
-        grad,
-        drzava,
-        g_sirina,
-        g_duzina
-      }
+      uloga: role
     };
     console.log(korisnik);
 
     setErrorMessage('');
 
-    fetch("http://localhost:8080/registrovaniKorisnik/register", {
+    fetch("http://localhost:8080/registeredUser/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(korisnik)
@@ -207,7 +157,8 @@ export default function Registracija() {
       if (response.ok) {
         console.log("Novi korisnik dodat");
         setSuccessMessage("Registration successful! Activation link is sent to your email address. Redirecting to login...");
-  
+        setErrorMessage("");
+
         setTimeout(() => {
           if (isMounted.current) {
             setSuccessMessage("");
@@ -255,17 +206,14 @@ export default function Registracija() {
             Registration
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField fullWidth required label="First name" value={ime} onChange={(e) => setIme(e.target.value)} sx={{ mb: 1.5 }} />
-            <TextField fullWidth required label="Last name" value={prezime} onChange={(e) => setPrezime(e.target.value)} sx={{ mb: 1.5 }} />
-            <TextField fullWidth required label="Username" value={korisnickoIme} onChange={handleKorisnickoImeChange} error={korisnickoImeError} helperText={korisnickoImeError ? 'Enter valid username' : ''} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="First name" value={name} onChange={(e) => setIme(e.target.value)} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="Last name" value={surname} onChange={(e) => setPrezime(e.target.value)} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="Username" value={username} onChange={handleKorisnickoImeChange} error={korisnickoImeError} helperText={korisnickoImeError ? 'Enter valid username' : ''} sx={{ mb: 1.5 }} />
             <TextField fullWidth required label="Email" value={email} onChange={handleEmailChange} error={emailError} helperText={emailError ? 'Enter valid e-mail address' : ''} sx={{ mb: 1.5 }} />
             <TextField fullWidth required label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} sx={{ mb: 1.5 }} />
             <TextField fullWidth required label="Repeat password" type="password" value={repeatPassword} onChange={(e) => { setRepeatPassword(e.target.value); setPasswordMismatch(false); }} sx={{ mb: 1.5 }} />
             {passwordMismatch && <Typography color="error" variant="body2" gutterBottom>Passwords do not match.</Typography>}
-            <TextField fullWidth required label="Street address" onChange={handleStreetAddressChange} error={UlicaError} helperText={UlicaError ? 'Enter valid street address' : ''} sx={{ mb: 1.5 }}/>
-            <TextField fullWidth required label="City" onChange={handleCityChange} error={GradError} helperText={GradError ? 'Enter valid city name' : ''} sx={{ mb: 1.5 }}/>
-            <TextField fullWidth required label="Country" onChange={handleCountryChange} error={DrzavaError} helperText={DrzavaError ? 'Enter valid country name' : ''} sx={{ mb: 1.5 }} />
-            <TextField fullWidth required label="Phone number" value={broj} onChange={handleBrojChange} error={brojError} helperText={brojError ? 'Enter 10-digit phone number' : ''} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="Phone number" value={phoneNumber} onChange={handleBrojChange} error={brojError} helperText={brojError ? 'Enter 10-digit phone number' : ''} sx={{ mb: 1.5 }} />
             <Button type="submit" sx={{ padding: '5px 10px', borderRadius: '15px', fontSize: '1rem', fontWeight: 'bold', mt: 2, mb: 3 }} fullWidth variant="contained"  color="secondary">
               Sign in
             </Button>

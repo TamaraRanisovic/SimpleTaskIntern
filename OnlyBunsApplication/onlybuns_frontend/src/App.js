@@ -8,7 +8,7 @@ import AdminSistemView from "./pages/AdminSistemView";
 import NovaObjava from "./pages/NovaObjava";
 import ObjavaPrikaz from './pages/ObjavaPrikaz';
 import ProfilKorisnika from './pages/ProfilKorisnika';
-import ObliznjeObjave from './pages/ObliznjeObjave';
+import React from 'react';
 
 function App() {
   return (
@@ -23,7 +23,6 @@ function App() {
           <Route path="/novaObjava" element={<NovaObjava/>} />
           <Route path="/objavaPrikaz/:postId" element={<ObjavaPrikaz />} />
           <Route path="/profilKorisnika/:username" element={<ProfilKorisnika />} />
-          <Route path="/ObliznjeObjave/:username" element={<ObliznjeObjave />} />
         </Routes>
       </Router>
     </div>

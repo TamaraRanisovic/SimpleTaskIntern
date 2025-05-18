@@ -1,12 +1,9 @@
 package com.developer.onlybuns;
 
-import com.developer.onlybuns.repository.AdminSistemRepository;
-import com.developer.onlybuns.repository.RegistrovaniKorisnikRepository;
-import org.springframework.amqp.core.*;
+import com.developer.onlybuns.repository.RegisteredUserRepository;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -20,10 +17,7 @@ public class OnlyBunsApplication {
 
 
 	@Autowired
-	private AdminSistemRepository adminSistemRepository;
-
-	@Autowired
-	private RegistrovaniKorisnikRepository registrovaniKorisnikRepository;
+	private RegisteredUserRepository registeredUserRepository;
 
 
 	public static void main(String[] args) {

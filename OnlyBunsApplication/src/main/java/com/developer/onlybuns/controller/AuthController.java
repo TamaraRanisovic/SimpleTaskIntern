@@ -3,18 +3,15 @@ package com.developer.onlybuns.controller;
 
 import com.developer.onlybuns.dto.request.JwtUtil;
 import com.developer.onlybuns.dto.request.LoginDTO;
-import com.developer.onlybuns.entity.Korisnik;
+import com.developer.onlybuns.entity.User;
 import com.developer.onlybuns.service.KorisnikService;
 import com.developer.onlybuns.service.RateLimiterService;
 import io.github.resilience4j.ratelimiter.RateLimiter;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,13 +44,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("{\"message\": \"Too many login attempts. Please try again later.\"}");
         }
 
-        Korisnik validCredentials = korisnikService.findByEmailAndPassword(email, password);
+        User validCredentials = korisnikService.findByEmailAndPassword(email, password);
         if (validCredentials != null) {
-            Korisnik korisnik = korisnikService.findByEmail(email);
+            User user = korisnikService.findByEmail(email);
 
-            if (korisnik.isVerifikacija()) {
-                String username = korisnik.getKorisnickoIme();
-                String uloga = korisnik.getUloga().toString();
+            if (user.isVerified()) {
+                String username = user.getUsername();
+                String uloga = user.getUloga().toString();
 
                 JwtUtil jwtUtil = new JwtUtil();
                 String token = jwtUtil.generateToken(email, username, uloga);
@@ -61,7 +58,6 @@ public class AuthController {
                 Map<String, String> response = new HashMap<>();
                 response.put("token", token);
 
-                korisnikService.updateLastLogin(email, LocalDateTime.now());
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(401).body("{\"message\": \"Please activate your account.\"}");

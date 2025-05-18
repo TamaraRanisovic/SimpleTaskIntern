@@ -1,14 +1,11 @@
 package com.developer.onlybuns.service;
 
-import com.developer.onlybuns.entity.Korisnik;
-
-import java.time.LocalDateTime;
+import com.developer.onlybuns.entity.User;
 
 public interface KorisnikService {
-    Korisnik findByEmailAndPassword(String email, String password);
+    User findByEmailAndPassword(String email, String password);
 
-    Korisnik findByEmail(String email);
+    User findByEmail(String email);
     String getKorisnikUloga(String email);
 
-    public void updateLastLogin(String email, LocalDateTime lastLogin);
 }
