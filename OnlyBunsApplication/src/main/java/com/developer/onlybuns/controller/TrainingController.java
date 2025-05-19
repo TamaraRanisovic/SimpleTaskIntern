@@ -103,4 +103,16 @@ public class TrainingController {
         return ResponseEntity.ok(trainings);
     }
 
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteTraining(@PathVariable Integer id) {
+        try {
+            trainingService.deleteTrainingById(id);
+            return ResponseEntity.ok("Training successfully deleted.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+
 }

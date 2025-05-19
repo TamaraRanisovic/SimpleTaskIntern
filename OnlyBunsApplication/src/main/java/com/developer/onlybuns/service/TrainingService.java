@@ -28,4 +28,6 @@ public interface TrainingService {
     void createTraining(NewTrainingDTO dto);
 
     List<TrainingDTO> getTrainingsByTrainerUsername(String username);
+
+    void deleteTrainingById(Integer id);
 }

@@ -1,22 +1,122 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Typography, Paper, Box } from '@mui/material';
-import { AppBar, Toolbar, Button, IconButton, List, ListItem, ListItemText  } from '@mui/material';
-import { Link } from 'react-router-dom';
+import * as React from 'react';
+import { useEffect, useState, useRef } from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import MenuItem from '@mui/material/MenuItem';
+import { AppBar, Toolbar} from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from './photos/posticon.png';
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, ListItemText, Divider } from '@mui/material';
+import axios from "axios";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 
-const ObjavaPrikaz = () => {
-  const { postId } = useParams();
-  const [post, setPost] = useState(null);
-  const [email, setEmail] = useState('');
-  const [korisnickoIme, setKorisnickoIme] = useState('');
-  const [role, setRole] = useState('');
+
+const defaultTheme = createTheme();
+
+export default function ObjavaPrikaz() {
+  const [korisnicko_ime, setKorisnickoIme] = useState('');
+
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('');
+
+  const navigate = useNavigate();
+  const isMounted = useRef(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+  const navigate2 = useNavigate(); // React Router's navigate function to redirect
   const [openDialog2, setOpenDialog2] = useState(false);
   const [dialogMessage2, setDialogMessage2] = useState('');
+  const [trainingTime, setTrainingTime] = useState(null);
+    const [trainingDuration, setTrainingDuration] = useState(null);
+
+  const [trainingType, setTrainingType] = useState('');
+const validTimes = [
+  '08:00', '08:30',
+  '09:00', '09:30',
+  '10:00', '10:30',
+  '11:00', '11:30',
+  '12:00', '12:30',
+  '13:00', '13:30',
+  '14:00', '14:30',
+  '15:00', '15:30',
+  '16:00', '16:30',
+  '17:00', '17:30',
+  '18:00', '18:30',
+];
+
+  const [trainingDate, setTrainingDate] = useState(null);
+  const [trainings, setTrainings] = useState([]);
+  const [selectedTrainingId, setSelectedTrainingId] = useState(null);
+  const [bookingMessage, setBookingMessage] = useState('');
+
+
+const fetchBookedTrainings = () => {
+    if (korisnicko_ime) {
+      axios.get(`http://localhost:8080/trainings/booked?username=${korisnicko_ime}`)
+        .then((response) => setTrainings(response.data))
+        .catch((error) => console.error('Error fetching booked trainings:', error));
+    }
+  };
+
+useEffect(() => {
+    fetchBookedTrainings();
+  }, [korisnicko_ime]);
+
+  
+
+
+const handleCancelSubmit = (e) => {
+  e.preventDefault();
+  if (!selectedTrainingId || !korisnicko_ime) {
+    setBookingMessage('Please select a training and make sure you are logged in.');
+    return;
+  }
+
+  axios.post(`http://localhost:8080/trainings/cancel?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
+    .then(() => {
+      setBookingMessage('Training cancelled successfully!');
+      fetchBookedTrainings();
+    })
+    .catch((error) => {
+      const message = error.response?.data || 'Failed to cancel training.';
+      setBookingMessage(`${message}`);
+    });
+};
+
+
+function parseTimeString(timeStr) {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+}
+
+
+const toDateObject = (dateArray) => {
+  if (!Array.isArray(dateArray)) return null;
+  const [year, month, day, hour, minute] = dateArray;
+  return new Date(year, month - 1, day, hour, minute); // JS months are 0-based
+};
+
+
+function isValidTime(date) {
+  return validTimes.some(t => {
+    const validDate = parseTimeString(t);
+    return validDate.getHours() === date.getHours() &&
+           validDate.getMinutes() === date.getMinutes();
+  });
+}
+
+
 
   const handleOpenDialog2 = () => {
     setDialogMessage2("Feature Coming Soon...");
@@ -26,6 +126,11 @@ const ObjavaPrikaz = () => {
   const handleCloseDialog2 = () => {
     setOpenDialog2(false);
   };
+  
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    navigate2('/prijava');
+  };
 
   const logout = () => {
     localStorage.removeItem("jwtToken"); // Remove token
@@ -33,54 +138,89 @@ const ObjavaPrikaz = () => {
     // Redirect to login page
     window.location.href = "/prijava";  // or use `useNavigate` from React Router v6
   };
-  
-  useEffect(() => {
-  
-        fetch('http://localhost:8080/auth/decodeJwt', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: token,
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data) {
-              setEmail(data.Email);
-              setKorisnickoIme(data.Username);
-              setRole(data.Role);
-            }
-          })
-          .catch(error => {
-            console.error('Error decoding JWT token:', error);
-          });
-      }, [token]);
-  
-  useEffect(() => {
-    // Fetch post details using postId
-    fetch(`http://localhost:8080/objava/${postId}`)
-      .then(response => response.json())
-      .then(data => setPost(data))
-      .catch(error => console.error('Error fetching post:', error));
-  }, [postId]);
 
-  if (!post) {
-    return <Typography>Loading...</Typography>;
-  }
+    
+  useEffect(() => {
+      if (!token) {
+        setDialogMessage('No user found. Please log in.');
+        setOpenDialog(true);
+        setTimeout(() => {
+          navigate('/prijava'); // Redirect to login after 15 seconds
+        }, 15000); // Delay redirection to allow user to read the message
+        return;
+      }
+  
+      fetch('http://localhost:8080/auth/decodeJwt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: token,
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to decode token');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (!data || data.Role !== "TRAINER") {
+          setDialogMessage('Unauthorized access. Redirecting to login...');
+          setOpenDialog(true);
+          setTimeout(() => {
+            navigate('/prijava');
+          }, 15000);
+          return;
+        }
+  
+        // Set user data only if role is valid
+        setEmail(data.Email);
+        setKorisnickoIme(data.Username);
+        setRole(data.Role);
+      })
+      .catch(error => {
+        console.error('Error decoding JWT token:', error);
+        setDialogMessage('Session expired or invalid token. Please log in again.');
+        setOpenDialog(true);
+        setTimeout(() => {
+          navigate('/prijava');
+        }, 15000);
+      });
+  }, [token, navigate]);
+
+
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
 
   return (
     <div>
+      {/* Dialog box for showing the message */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Notification</DialogTitle>
+        <DialogContent>{dialogMessage}</DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={openDialog2} onClose={handleCloseDialog2}>
-              <DialogTitle>Notification</DialogTitle>
-              <DialogContent>{dialogMessage2}</DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog2} color="primary">
-                  OK
-                </Button>
-              </DialogActions>
-        </Dialog>
-    {/* Navigation Bar */}
-<AppBar position="static" sx={{ bgcolor: '#b4a7d6' }}>
+                          <DialogTitle>Notification</DialogTitle>
+                          <DialogContent>{dialogMessage2}</DialogContent>
+                          <DialogActions>
+                            <Button onClick={handleCloseDialog2} color="primary">
+                              OK
+                            </Button>
+                          </DialogActions>
+      </Dialog>
+    <ThemeProvider theme={defaultTheme}>
+      <AppBar position="static" sx={{ bgcolor: '#b4a7d6' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
@@ -90,49 +230,32 @@ const ObjavaPrikaz = () => {
               </Typography>
             </Box>
           </Link>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-          {role === "REGISTROVANI_KORISNIK" ? ( 
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button component={Link} to="/prijavljeniKorisnikPregled" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                  Feed
-                </Button>
-                <Button component={Link} to="/novaObjava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                  New post
-                </Button>
-                <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                  Trends
-                </Button>
-                <Button component={Link} to={`/obliznjeObjave/${korisnickoIme}`}  color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                  Nearby Posts
-                </Button>
-                <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                  Chat
-                </Button>
-              </Box>
-            ) : role === "ADMIN_SISTEMA" ? (
-              <>
-                <Button component={Link} to="/prijavljeniKorisnikPregled" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                  ADVERTISING
-                </Button>
-                <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                  Trends
-                </Button>
-              </>
-            ) : (
-              <>
-              </>
-            )}
-
-            {token && korisnickoIme ? ( 
-              <Button onClick={logout} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold'}}>
-                Logout
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button component={Link} to="/prijavljeniKorisnikPregled" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Feed
               </Button>
-            ) : (<></>)}
-          </Box>
+              <Button component={Link} to="/novaObjava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Book a training
+              </Button>
+              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Trends
+              </Button>
+              <Button component={Link} to={`/obliznjeObjave/${korisnicko_ime}`}  color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Nearby Posts
+              </Button>
+              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Chat
+              </Button>
+              {token && korisnicko_ime ? ( 
+                <Button onClick={logout} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold'}}>
+                  Logout
+                </Button>
+              ) : (<></>)}
+            </Box>
           <Box sx={{ display: 'flex', gap: 2, mr: 2, alignItems: 'center' }}>
-            {token && korisnickoIme ? ( 
+            {token && korisnicko_ime ? ( 
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                Welcome, {korisnickoIme}
+                Welcome, {korisnicko_ime}
               </Typography>
             ) : (
               <>
@@ -147,111 +270,64 @@ const ObjavaPrikaz = () => {
           </Box>
         </Toolbar>
       </AppBar>
-  <Paper
-      elevation={6}
-      sx={{
-        padding: 3,
-        borderRadius: "15px",
-        boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)",
-        display: "flex",
-        alignItems: "flex-start",
-        width: "700px",
-        margin: "auto",
-        mt: 2,
-      }}
-    >
-      {/* Post Section */}
-      <Box sx={{ width: "60%", textAlign: "center" }}>
-        <img
-          src={`http://localhost:8080/images/${post.slika}`}
-          alt={post.opis}
-          style={{ height: "310px", width: "100%", borderRadius: "10px", marginBottom: "15px" }}
-        />
-        
-        {/* Likes and Comments Row */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, alignItems: "center", mb: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton sx={{ color: "#e91e63" }}>
-              <FavoriteIcon />
-            </IconButton>
-            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              {post.broj_lajkova}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton color="secondary">
-              <ChatBubbleOutlineIcon />
-            </IconButton>
-            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              {post.broj_komentara}
-            </Typography>
-          </Box>
-        </Box>
+          <Container component="main" maxWidth="sm">
+      <CssBaseline />
+      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <FitnessCenterIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Cancel a Booked Training
+        </Typography>
 
-        {/* Description Row */}
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-          <Link to={`/profilKorisnika/${post.korisnicko_ime}`} style={{ textDecoration: "none" }}>
-            <Typography sx={{ fontWeight: "bold" }}>{post.korisnicko_ime}</Typography>
-          </Link>
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            sx={{ fontStyle: "italic", whiteSpace: "normal", wordWrap: "break-word" }}
-          >
-            {post.opis}
-          </Typography>
-        </Box>
-      </Box>
 
-      <Box sx={{ 
-  width: "45%", 
-  paddingLeft: 2, 
-  borderLeft: "1px solid #ddd", 
-  maxHeight: "400px",  // Set a fixed height for the scrollable area
-  overflowY: "auto",   // Enable vertical scrolling
-}}>
-  <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1.5 }}>
-    Comments
-  </Typography>
-  <List>
-    {post.komentari.map((komentar, index) => (
-      <ListItem
-        key={index}
-        alignItems="flex-start"
-        sx={{
-          transition: "background-color 0.3s ease",
-          "&:hover": { backgroundColor: "#f5f5f5" }, // Light grey hover effect
-          borderRadius: "10px",
-          padding: "8px 12px",
-        }}
-      >
-        <ListItemText
-          primary={
-            <Link
-              to={`/profilKorisnika/${komentar.korisnicko_ime}`}
-              style={{ textDecoration: "none", color: "inherit" }}
+        {trainings.length > 0 ? (
+          <>
+            <Typography variant="h6" sx={{ mt: 3 }}>Available Trainings</Typography>
+            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+              {trainings.map((training) => (
+                <React.Fragment key={training.id}>
+                  <ListItem
+                    button
+                    selected={selectedTrainingId === training.id}
+                    onClick={() => setSelectedTrainingId(training.id)}
+                  >
+                    <ListItemText
+                      primary={`${toDateObject(training.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${training.trainingType}`}
+                      secondary={`Duration: ${training.duration} min, Trainer: ${training.trainer}`}
+                    />
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              ))}
+            </List>
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={!selectedTrainingId}
+              onClick={handleCancelSubmit}
             >
-              <Typography sx={{ fontWeight: "bold", "&:hover": { color: "#1976d2" } }}>
-                {komentar.korisnicko_ime}
-              </Typography>
-            </Link>
-          }
-          secondary={
-            <>
-              <Typography variant="body2" color="textPrimary">
-                {komentar.opis}
-              </Typography>
-            </>
-          }
-        />
-      </ListItem>
-    ))}
-  </List>
-</Box>
+              Cancel Selected Training
+            </Button>
+          </>
+        ) : trainingDate ? (
+          <Typography sx={{ mt: 2 }}>No trainings available for selected day.</Typography>
+        ) : null}
 
-    </Paper>
+        {bookingMessage && (
+          <Typography color="success.main" sx={{ mt: 2 }}>
+            {bookingMessage}
+          </Typography>
+        )}
+      </Box>
+    </Container>
+
+
+
+    </ThemeProvider>
     </div>
   );
-};
-
-export default ObjavaPrikaz;
+}

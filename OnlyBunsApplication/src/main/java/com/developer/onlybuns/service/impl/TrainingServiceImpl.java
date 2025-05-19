@@ -210,4 +210,23 @@ public class TrainingServiceImpl implements TrainingService {
 
         return trainingsDTO;
     }
+
+    @Override
+    public void deleteTrainingById(Integer id) {
+        Training training = trainingRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Training with id " + id + " not found."));
+
+        // Manually remove training from each user's set of trainings
+        Set<RegisteredUser> users = training.getUsers();
+        if (users != null) {
+            for (RegisteredUser user : users) {
+                user.getTrainings().remove(training);
+            }
+            // Clear the relationship from the training side as well
+            training.getUsers().clear();
+        }
+
+        trainingRepository.delete(training);
+    }
+
 }
