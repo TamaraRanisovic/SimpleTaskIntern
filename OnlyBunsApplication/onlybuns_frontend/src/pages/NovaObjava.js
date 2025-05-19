@@ -13,42 +13,102 @@ import MenuItem from '@mui/material/MenuItem';
 import { AppBar, Toolbar} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from './photos/posticon.png';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import axios from "axios";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 
 
 const defaultTheme = createTheme();
 
 export default function NovaObjava() {
-  const [opis, setOpis] = useState('');
-  const [g_sirina, setG_sirina] = useState('');
-  const [g_duzina, setG_duzina] = useState('');
-  const [slika, setSlika] = useState('dasdas');
-  const [datum_objave, setDatumObjave] = useState(new Date().toISOString());
-
   const [korisnicko_ime, setKorisnickoIme] = useState('');
 
-  const [errorMessage, setErrorMessage] = useState('');
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
   const [role, setRole] = useState('');
-  const formData = new FormData();
-  const [message, setMessage] = useState('');
-  const [file, setFile] = useState(null);
-  const [selectedPosition, setSelectedPosition] = useState(null);
+
   const navigate = useNavigate();
-  const [successMessage, setSuccessMessage] = useState('');
   const isMounted = useRef(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
   const navigate2 = useNavigate(); // React Router's navigate function to redirect
-  const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
   const [openDialog2, setOpenDialog2] = useState(false);
   const [dialogMessage2, setDialogMessage2] = useState('');
+  const [trainingDate, setTrainingDate] = useState(null);
+  const [trainingTime, setTrainingTime] = useState(null);
+    const [trainingDuration, setTrainingDuration] = useState(null);
+
+  const [trainingType, setTrainingType] = useState('');
+  const [bookingMessage, setBookingMessage] = useState('');
+const validTimes = [
+  '08:00', '08:30',
+  '09:00', '09:30',
+  '10:00', '10:30',
+  '11:00', '11:30',
+  '12:00', '12:30',
+  '13:00', '13:30',
+  '14:00', '14:30',
+  '15:00', '15:30',
+  '16:00', '16:30',
+  '17:00', '17:30',
+  '18:00', '18:30',
+];
+
+function parseTimeString(timeStr) {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+}
+
+function isValidTime(date) {
+  return validTimes.some(t => {
+    const validDate = parseTimeString(t);
+    return validDate.getHours() === date.getHours() &&
+           validDate.getMinutes() === date.getMinutes();
+  });
+}
+
+
+const handleBookingSubmit = async (event) => {
+  event.preventDefault();
+  
+  if (!trainingDate || !trainingTime || !trainingType) {
+    setBookingMessage("Please fill in all fields.");
+    return;
+  }
+
+  const bookingData = {
+    username: korisnicko_ime,
+    date: trainingDate,
+    time: trainingTime,
+    type: trainingType,
+  };
+
+  try {
+    const response = await fetch("http://localhost:8080/trainings/book", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    if (response.ok) {
+      setBookingMessage("Training booked successfully!");
+      setTrainingDate(null);
+      setTrainingTime(null);
+      setTrainingType('');
+    } else {
+      setBookingMessage("Failed to book training.");
+    }
+  } catch (error) {
+    console.error("Booking error:", error);
+    setBookingMessage("An error occurred during booking.");
+  }
+};
 
   const handleOpenDialog2 = () => {
     setDialogMessage2("Feature Coming Soon...");
@@ -70,73 +130,6 @@ export default function NovaObjava() {
     // Redirect to login page
     window.location.href = "/prijava";  // or use `useNavigate` from React Router v6
   };
-
-  const handleGeocode = async (street, city, state) => {
-    if (!street || !city || !state) return; // Ensure all fields are filled before making the request
-  
-    try {
-      const response = await axios.post("http://localhost:8080/geocode/get-coordinates", {
-        ulica: street,
-        grad: city,
-        drzava: state
-      });
-  
-      if (response.data.latitude && response.data.longitude) {
-        setG_sirina(response.data.latitude);
-        setG_duzina(response.data.longitude);
-      } else {
-        setErrorMessage("Could not fetch coordinates for this address.");
-      }
-    } catch (error) {
-      setErrorMessage("Error occurred while fetching coordinates.");
-    }
-  };
-
-  const UpdateMapCenter = ({ latitude, longitude }) => {
-    const map = useMapEvents({
-      click(e) {
-        handleReverseGeocode(e.latlng.lat, e.latlng.lng);
-      },
-    });
-  
-    useEffect(() => {
-      map.setView([latitude, longitude], map.getZoom());
-    }, [latitude, longitude, map]);
-  
-    return <Marker position={[latitude, longitude]} />;
-  };
-  
-  // Automatically call `handleGeocode` when user types in address fields
-  useEffect(() => {
-    handleGeocode(street, city, state);
-  }, [street, city, state]);
-
-
-  // 📌 Function to Reverse Geocode (Coordinates → Address)
-  const handleReverseGeocode = async (lat, lon) => {
-    try {
-      // Ensure lat/lon values are valid before making a request
-      if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-        setErrorMessage("Invalid latitude or longitude.");
-        return;
-      }
-  
-      const response = await axios.get(`http://localhost:8080/geocode/get-address`, {
-        params: { latitude: lat, longitude: lon }
-      });
-  
-      if (response.data.ulica && response.data.grad && response.data.drzava) {
-        setStreet(response.data.ulica);
-        setCity(response.data.grad);
-        setState(response.data.drzava);
-      } else {
-        setErrorMessage("Address not found for the selected location.");
-      }
-    } catch (error) {
-      setErrorMessage("Error occurred while fetching address.");
-    }
-  };
-  
 
     
   useEffect(() => {
@@ -163,7 +156,7 @@ export default function NovaObjava() {
         return response.json();
       })
       .then(data => {
-        if (!data || data.Role !== "REGISTROVANI_KORISNIK") {
+        if (!data || data.Role !== "REGISTERED_USER") {
           setDialogMessage('Unauthorized access. Redirecting to login...');
           setOpenDialog(true);
           setTimeout(() => {
@@ -186,47 +179,8 @@ export default function NovaObjava() {
         }, 15000);
       });
   }, [token, navigate]);
-  
-  const handlePhotoChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setSlika(selectedFile.name); // Set `slika` to the file name for reference
-    }
-  };
 
-  const handlePhotoUpload = async () => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      const response = await fetch("http://localhost:8080/images/upload", {
-        method: "POST",
-        body: formData
-      });
-      
-      if (response.ok) {
-        console.log("Photo uploaded successfully");
-      } else {
-        console.error("Photo upload failed");
-      }
-    } catch (error) {
-      console.error("Error uploading photo:", error);
-    }
-  };
 
-  function LocationMarker() {
-    const map = useMapEvents({
-      click(e) {
-        const { lat, lng } = e.latlng;
-        setG_sirina(lat);
-        setG_duzina(lng);
-        handleReverseGeocode(lat, lng);
-      },
-    });
-  
-    return g_sirina && g_duzina ? <Marker position={[g_sirina, g_duzina]} /> : null;
-  }
 
   useEffect(() => {
     isMounted.current = true;
@@ -234,58 +188,6 @@ export default function NovaObjava() {
       isMounted.current = false;
     };
   }, []);
-
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    
-    if (!korisnicko_ime || !opis || !g_sirina || !g_duzina || !slika) {
-      setErrorMessage('Enter valid data.');
-      return;
-    }
-    setErrorMessage('');
-
-    setDatumObjave(new Date().toISOString());
-    const objava = { korisnicko_ime, opis, slika, datum_objave, 
-      lokacijaDTO: {
-        ulica: street,
-        grad: city,
-        drzava: state
-    } };
-    const token = localStorage.getItem("jwtToken");
-
-    try {
-      const response = await fetch("http://localhost:8080/objava/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-         },
-        body: JSON.stringify(objava)
-      });
-
-      if (response.ok) {
-        console.log("New post created successfully");
-        
-        // Now, upload the photo after the objava is created
-        await handlePhotoUpload();
-
-        setSuccessMessage("New post created successfully. Redirecting to feed...");
-  
-        setTimeout(() => {
-          if (isMounted.current) {
-            setSuccessMessage("");
-            navigate("/prijavljeniKorisnikPregled");
-          }
-        }, 15000);
-      } else {
-        console.error("Failed to create post");
-      }
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  };
-
 
 
   return (
@@ -361,59 +263,76 @@ export default function NovaObjava() {
         </Toolbar>
       </AppBar>
       <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box sx={{ marginTop: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <Typography component="h1" variant="h5" sx={{ marginBottom: 2 }}>
-          Create New Post
+  <CssBaseline />
+  <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+      <LockOutlinedIcon />
+    </Avatar>
+    <Typography component="h1" variant="h5">
+      Book a Training
+    </Typography>
+
+    <Box component="form" onSubmit={handleBookingSubmit} noValidate sx={{ mt: 1 }}>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <DatePicker
+          label="Select a date"
+          value={trainingDate}
+          onChange={(newValue) => setTrainingDate(newValue)}
+          renderInput={(params) => <TextField margin="normal" fullWidth {...params} />}
+        />
+
+        <TextField
+  select
+  fullWidth
+  margin="normal"
+  label="Select a time"
+  value={trainingTime}
+  onChange={(e) => setTrainingTime(e.target.value)}
+>
+  {validTimes.map((time) => (
+    <MenuItem key={time} value={time}>
+      {time}
+    </MenuItem>
+  ))}
+</TextField>
+
+      </LocalizationProvider>
+
+      <TextField
+        select
+        fullWidth
+        margin="normal"
+        label="Duration"
+        value={trainingDuration}
+        onChange={(e) => setTrainingDuration(e.target.value)}
+      >
+        <MenuItem value={30}>30 minutes</MenuItem>
+        <MenuItem value={60}>60 minutes</MenuItem>
+      </TextField>
+
+      <TextField
+        margin="normal"
+        fullWidth
+        id="trainingType"
+        label="Training Type"
+        name="trainingType"
+        value={trainingType}
+        onChange={(e) => setTrainingType(e.target.value)}
+      />
+
+      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+        Book Training
+      </Button>
+
+      {bookingMessage && (
+        <Typography color="success.main" sx={{ mt: 2 }}>
+          {bookingMessage}
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>          
-          <TextField fullWidth required label="Description" value={opis} onChange={(e) => setOpis(e.target.value)} sx={{ mb: 1.5 }} />
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Select location on the map or enter an address manually.
-          </Typography>
+      )}
+    </Box>
+  </Box>
+</Container>
 
-          {/* Address Fields */}
-          <TextField fullWidth label="Street Name" value={street} onChange={(e) => setStreet(e.target.value)} sx={{ mb: 1.5 }} />
-          <TextField fullWidth label="City" value={city} onChange={(e) => setCity(e.target.value)} sx={{ mb: 1.5 }} />
-          <TextField fullWidth label="State" value={state} onChange={(e) => setState(e.target.value)} sx={{ mb: 1.5 }} />
-
-          {/* Map */}
-          <MapContainer center={[g_sirina, g_duzina]} zoom={13} style={{ height: "200px", width: "100%", marginBottom: "15px" }}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <UpdateMapCenter latitude={g_sirina} longitude={g_duzina} />
-          </MapContainer>
-
-          {/* Coordinates */}
-          <TextField fullWidth InputProps={{ readOnly: true }} label="Latitude" value={g_sirina} onChange={(e) => setG_sirina(parseFloat(e.target.value))} sx={{ mb: 1.5 }} />
-          <TextField fullWidth InputProps={{ readOnly: true }} label="Longitude" value={g_duzina} onChange={(e) => setG_duzina(parseFloat(e.target.value))} sx={{ mb: 1.5 }} />
-
-          {/* File Upload */}
-          <div style={{ marginBottom: '15px' }}>
-            <label>Upload Photo:</label>
-            <input type="file" accept="image/*" onChange={handlePhotoChange} />
-          </div>
-          <Button
-            type="submit"
-            sx={{ padding: '5px 10px', borderRadius: '15px', fontSize: '1rem', fontWeight: 'bold', mt: 2, mb: 3 }}
-            fullWidth
-            variant="contained"
-            color="secondary"
-          >
-            Publish
-          </Button>
-          {errorMessage && (
-            <Typography color="error" sx={{ mb: 4 }} variant="body2" gutterBottom>
-              {errorMessage}
-            </Typography>
-          )}
-          {successMessage && (
-        <Typography color="green" sx={{ mb: 4 }} variant="body2" gutterBottom>
-        {successMessage}
-      </Typography>
-        )}
-        </Box>
-      </Box>
-    </Container>
 
 
     </ThemeProvider>

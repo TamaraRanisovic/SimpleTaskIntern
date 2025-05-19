@@ -1,6 +1,8 @@
 package com.developer.onlybuns.entity;
 
 
+import com.developer.onlybuns.enums.TrainingType;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -18,41 +20,49 @@ public class Training {
     @Column(name="duration", unique=false, nullable=false)
     private Integer duration;
 
+
     @Column(name="startTime", unique=false, nullable=false)
     private LocalDateTime startTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name="type", unique=false, nullable=false)
+    private TrainingType trainingType;
+
 
     @ManyToMany(mappedBy = "trainings")
-    private Set<RegisteredUser> users = new HashSet<>();
+    private Set<RegisteredUser> users;
 
     @ManyToOne
     @JoinColumn(name = "trainer_id", nullable = false)
     private Trainer trainer;
 
     public Training() {
-    }
-
-    public Training(Integer id, Integer duration, LocalDateTime startTime) {
-        this.id = id;
-        this.duration = duration;
-        this.startTime = startTime;
-        this.trainer = null;
         this.users = new HashSet<RegisteredUser>();
     }
 
-    public Training(Integer id, Integer duration, LocalDateTime startTime, Set<RegisteredUser> users, Trainer trainer) {
+    public Training(Integer id, Integer duration, LocalDateTime startTime, TrainingType trainingType, Set<RegisteredUser> users, Trainer trainer) {
         this.id = id;
         this.duration = duration;
         this.startTime = startTime;
+        this.trainingType = trainingType;
         this.users = users;
         this.trainer = trainer;
     }
 
-    public Training(Integer duration, LocalDateTime startTime, Set<RegisteredUser> users, Trainer trainer) {
+    public Training(Integer duration, LocalDateTime startTime, TrainingType trainingType, Set<RegisteredUser> users, Trainer trainer) {
         this.duration = duration;
         this.startTime = startTime;
+        this.trainingType = trainingType;
         this.users = users;
         this.trainer = trainer;
+    }
+
+    public Training(Integer duration, LocalDateTime startTime, TrainingType trainingType) {
+        this.duration = duration;
+        this.startTime = startTime;
+        this.trainingType = trainingType;
+        this.users = new HashSet<RegisteredUser>();
+        this.trainer = null;
     }
 
     public Integer getId() {
@@ -93,5 +103,13 @@ public class Training {
 
     public void setTrainer(Trainer trainer) {
         this.trainer = trainer;
+    }
+
+    public TrainingType getTrainingType() {
+        return trainingType;
+    }
+
+    public void setTrainingType(TrainingType trainingType) {
+        this.trainingType = trainingType;
     }
 }

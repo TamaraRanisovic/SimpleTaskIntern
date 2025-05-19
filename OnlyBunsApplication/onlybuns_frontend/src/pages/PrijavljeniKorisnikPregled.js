@@ -66,7 +66,7 @@ const PrijavljeniKorisnikPregled = () => {
       return response.json();
     })
     .then(data => {
-      if (!data || data.Role !== "REGISTROVANI_KORISNIK") {
+      if (!data || data.Role !== "REGISTERED_USER") {
         setDialogMessage('Unauthorized access. Redirecting to login...');
         setOpenDialog(true);
         setTimeout(() => {
