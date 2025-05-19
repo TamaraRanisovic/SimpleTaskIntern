@@ -15,7 +15,7 @@ import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("/registrovaniKorisnik")
+@RequestMapping("/registeredUser")
 public class RegisteredUserController {
 
     @Autowired
@@ -53,14 +53,14 @@ public class RegisteredUserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             // Handle any other errors
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
 
 
     private void sendActivationEmail(String email, String token) {
-        String activationLink = "http://localhost:8080/registrovaniKorisnik/activate?token=" + token;
+        String activationLink = "http://localhost:8080/registeredUser/activate?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("ranisovic.in1.2020@uns.ac.rs");

@@ -36,6 +36,23 @@ public class Training {
         this.id = id;
         this.duration = duration;
         this.startTime = startTime;
+        this.trainer = null;
+        this.users = new HashSet<RegisteredUser>();
+    }
+
+    public Training(Integer id, Integer duration, LocalDateTime startTime, Set<RegisteredUser> users, Trainer trainer) {
+        this.id = id;
+        this.duration = duration;
+        this.startTime = startTime;
+        this.users = users;
+        this.trainer = trainer;
+    }
+
+    public Training(Integer duration, LocalDateTime startTime, Set<RegisteredUser> users, Trainer trainer) {
+        this.duration = duration;
+        this.startTime = startTime;
+        this.users = users;
+        this.trainer = trainer;
     }
 
     public Integer getId() {
@@ -60,5 +77,21 @@ public class Training {
 
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
+    }
+
+    public Set<RegisteredUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<RegisteredUser> users) {
+        this.users = users;
+    }
+
+    public Trainer getTrainer() {
+        return trainer;
+    }
+
+    public void setTrainer(Trainer trainer) {
+        this.trainer = trainer;
     }
 }

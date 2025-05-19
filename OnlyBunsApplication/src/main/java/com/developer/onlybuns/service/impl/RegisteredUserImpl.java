@@ -44,7 +44,7 @@ public class RegisteredUserImpl implements RegisteredUserService {
         return registeredUserRepository.findByUsername(username);
     }
 
-    @Transactional
+   // @Transactional
     public void register(RegisteredUser registeredUser, String activationToken) {
         Logger log = LoggerFactory.getLogger(getClass());
 
@@ -55,11 +55,16 @@ public class RegisteredUserImpl implements RegisteredUserService {
         noviKorisnik.setEmail(registeredUser.getEmail());
         noviKorisnik.setPassword(registeredUser.getPassword());
         noviKorisnik.setName(registeredUser.getName());
+        log.info("111User successfully registered: {}", noviKorisnik.getEmail());
+
         noviKorisnik.setSurname(registeredUser.getSurname());
         noviKorisnik.setPhoneNumber(registeredUser.getPhoneNumber());
-        noviKorisnik.setUloga(Role.REGISTROVANI_KORISNIK);
+        noviKorisnik.setRole(Role.REGISTERED_USER);
+        log.info("222ser successfully registered: {}", noviKorisnik.getEmail());
+
         noviKorisnik.setActivationToken(activationToken);
         noviKorisnik.setVerified(false);
+        log.info("333ser successfully registered: {}", noviKorisnik.getEmail());
 
         // Save user
         registeredUserRepository.save(noviKorisnik);

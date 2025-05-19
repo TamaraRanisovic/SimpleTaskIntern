@@ -1,5 +1,5 @@
 package com.developer.onlybuns.enums;
 
 public enum Role {
-    TRENER, REGISTROVANI_KORISNIK
+    TRAINER, REGISTERED_USER
 }

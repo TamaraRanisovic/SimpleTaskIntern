@@ -2,13 +2,13 @@ package com.developer.onlybuns.service.impl;
 
 
 import com.developer.onlybuns.entity.User;
-import com.developer.onlybuns.service.KorisnikService;
+import com.developer.onlybuns.service.UserService;
 import com.developer.onlybuns.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 
 @Service
-public class UserServiceImpl implements KorisnikService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
@@ -29,9 +29,9 @@ public class UserServiceImpl implements KorisnikService {
     }
 
     @Override
-    public String getKorisnikUloga(String email) {
+    public String getUserRole(String email) {
         User user = findByEmail(email);
-        String uloga = user.getUloga().toString();
+        String uloga = user.getRole().toString();
         return uloga;
     }
 

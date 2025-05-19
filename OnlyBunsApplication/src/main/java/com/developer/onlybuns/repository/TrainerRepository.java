@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface TrenerRepository extends JpaRepository<Trainer, Integer> {
+public interface TrainerRepository extends JpaRepository<Trainer, Integer> {
     Trainer findByEmailAndPassword(String email, String password);
     Trainer findByEmail(String email);
     @Query("SELECT email FROM Trainer")

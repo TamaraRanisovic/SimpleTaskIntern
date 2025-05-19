@@ -74,9 +74,9 @@ export default function Prijava() {
       const decodedData = await decodeResponse.json();
       const userRole = decodedData.Role;
   
-      if (userRole === "REGISTROVANI_KORISNIK") {
+      if (userRole === "REGISTERED_USER") {
         navigate('/prijavljeniKorisnikPregled');
-      } else if (userRole === "ADMIN_SISTEMA") {
+      } else if (userRole === "TRAINER") {
         navigate('/adminSistemView');
       }
     } catch (error) {

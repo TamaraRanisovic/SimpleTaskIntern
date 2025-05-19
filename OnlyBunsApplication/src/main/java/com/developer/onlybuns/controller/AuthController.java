@@ -4,7 +4,7 @@ package com.developer.onlybuns.controller;
 import com.developer.onlybuns.dto.request.JwtUtil;
 import com.developer.onlybuns.dto.request.LoginDTO;
 import com.developer.onlybuns.entity.User;
-import com.developer.onlybuns.service.KorisnikService;
+import com.developer.onlybuns.service.UserService;
 import com.developer.onlybuns.service.RateLimiterService;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +26,11 @@ public class AuthController {
     private final RateLimiterService rateLimiterService;
 
     @Autowired
-    private final KorisnikService korisnikService;
+    private final UserService userService;
 
-    public AuthController(RateLimiterService rateLimiterService, KorisnikService korisnikService) {
+    public AuthController(RateLimiterService rateLimiterService, UserService userService) {
         this.rateLimiterService = rateLimiterService;
-        this.korisnikService = korisnikService;
+        this.userService = userService;
     }
 
 
@@ -44,13 +44,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("{\"message\": \"Too many login attempts. Please try again later.\"}");
         }
 
-        User validCredentials = korisnikService.findByEmailAndPassword(email, password);
+        User validCredentials = userService.findByEmailAndPassword(email, password);
         if (validCredentials != null) {
-            User user = korisnikService.findByEmail(email);
+            User user = userService.findByEmail(email);
 
             if (user.isVerified()) {
                 String username = user.getUsername();
-                String uloga = user.getUloga().toString();
+                String uloga = user.getRole().toString();
 
                 JwtUtil jwtUtil = new JwtUtil();
                 String token = jwtUtil.generateToken(email, username, uloga);

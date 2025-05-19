@@ -9,13 +9,14 @@ import javax.persistence.*;
 import static javax.persistence.InheritanceType.TABLE_PER_CLASS;
 
 @Entity
-@Table(name = "user")
+@Table(name = "korisnik")
 @Inheritance(strategy=TABLE_PER_CLASS)
 public class User {
 
     @Id
     @SequenceGenerator(name = "mySeqGenV1", sequenceName = "mySeqV1", initialValue = 1, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "mySeqGenV1")
+    @Column(name="id")
     private Integer id;
 
     @Column(name="username", unique=true, nullable=false)
@@ -114,13 +115,6 @@ public class User {
         this.activationToken = activationToken;
     }
 
-    public Role getUloga() {
-        return role;
-    }
-
-    public void setUloga(Role role) {
-        this.role = role;
-    }
     public Integer getId() {
         return id;
     }
@@ -177,4 +171,12 @@ public class User {
         this.username = username;
     }
 
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

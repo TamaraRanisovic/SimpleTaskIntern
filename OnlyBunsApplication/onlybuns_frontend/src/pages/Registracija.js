@@ -15,32 +15,32 @@ import logo from './photos/posticon.png';
 const defaultTheme = createTheme();
 
 export default function Registracija() {
-  const [name, setIme] = useState('');
-  const [surname, setPrezime] = useState('');
-  const [phoneNumber, setBroj] = useState('');
-  const [brojError, setBrojError] = useState(false);
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumberError, setPhoneNumberError] = useState(false);
   const [email, setEmail] = useState('');
-  const [username, setKorisnickoIme] = useState('');
+  const [username, setUsername] = useState('');
   const [emailError, setEmailError] = useState(false);
-  const [korisnickoImeError, setKorisnickoImeError] = useState(false);
+  const [usernameError, setUsernameError] = useState(false);
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
   const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [role, setUloga] = useState('REGISTERED_USER');
+  const [role, setRole] = useState('REGISTERED_USER');
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState('');
   const isMounted = useRef(true);
 
-  const validateBroj = (inputBroj) => {
-    const brojRegex = /^\d{10}$/;
-    return brojRegex.test(inputBroj);
+  const validatePhoneNumber = (inputPhoneNumber) => {
+    const phoneNumberRegex = /^\d{10}$/;
+    return phoneNumberRegex.test(inputPhoneNumber);
   };
 
-  const handleBrojChange = (e) => {
-    const newBroj = e.target.value;
-    setBroj(newBroj);
-    setBrojError(!validateBroj(newBroj));
+  const handlePhoneNumberChange = (e) => {
+    const newPhoneNumber = e.target.value;
+    setPhoneNumber(newPhoneNumber);
+    setPhoneNumberError(!validatePhoneNumber(newPhoneNumber));
   };
 
   const validateEmail = (inputEmail) => {
@@ -48,9 +48,9 @@ export default function Registracija() {
     return emailRegex.test(inputEmail);
   };
 
-  const validateKorisnickoIme = (inputKorisnickoIme) => {
-    const korisnickoImeRegex = /^[a-zA-Z0-9][a-zA-Z0-9._]{2,19}$/;
-    return korisnickoImeRegex.test(inputKorisnickoIme);
+  const validateUsername = (inputUsername) => {
+    const usernameRegex = /^[a-zA-Z0-9][a-zA-Z0-9._]{2,19}$/;
+    return usernameRegex.test(inputUsername);
   };
 
 
@@ -60,16 +60,16 @@ export default function Registracija() {
     setEmailError(!validateEmail(newEmail));
   };
 
-  const handleKorisnickoImeChange = (e) => {
-    const newKorisnickoIme = e.target.value;
-    setKorisnickoIme(newKorisnickoIme);
-    setKorisnickoImeError(!validateKorisnickoIme(newKorisnickoIme));
+  const handleUsernameChange = (e) => {
+    const newUsername = e.target.value;
+    setUsername(newUsername);
+    setUsernameError(!validateUsername(newUsername));
   };
 
 
   const checkEmailExists = async () => {
     try {
-      const response = await fetch("http://localhost:8080/registrovaniKorisnik/emails");
+      const response = await fetch("http://localhost:8080/registeredUser/emails");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -84,7 +84,7 @@ export default function Registracija() {
 
   const checkUsernameExists = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/registrovaniKorisnik/check-username?username=${username}`);
+      const response = await fetch(`http://localhost:8080/registeredUser/check-username?username=${username}`);
       if (!response.ok) {
         console.error("Network response was not ok");
         return false; // Assume the username doesn't exist in case of network errors
@@ -114,7 +114,7 @@ export default function Registracija() {
       return;
     }
 
-    if (!validateBroj(phoneNumber)) {
+    if (!validatePhoneNumber(phoneNumber)) {
       setErrorMessage('Enter valid phone number.');
       return;
     }
@@ -137,13 +137,13 @@ export default function Registracija() {
     }
 
     const korisnik = {
-      korisnickoIme: username,
-      ime: name,
-      prezime: surname,
-      broj: phoneNumber,
+      username,
+      name,
+      surname,
+      phoneNumber,
       email,
       password,
-      uloga: role
+      role
     };
     console.log(korisnik);
 
@@ -206,14 +206,14 @@ export default function Registracija() {
             Registration
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField fullWidth required label="First name" value={name} onChange={(e) => setIme(e.target.value)} sx={{ mb: 1.5 }} />
-            <TextField fullWidth required label="Last name" value={surname} onChange={(e) => setPrezime(e.target.value)} sx={{ mb: 1.5 }} />
-            <TextField fullWidth required label="Username" value={username} onChange={handleKorisnickoImeChange} error={korisnickoImeError} helperText={korisnickoImeError ? 'Enter valid username' : ''} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="First name" value={name} onChange={(e) => setName(e.target.value)} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="Last name" value={surname} onChange={(e) => setSurname(e.target.value)} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="Username" value={username} onChange={handleUsernameChange} error={usernameError} helperText={usernameError ? 'Enter valid username' : ''} sx={{ mb: 1.5 }} />
             <TextField fullWidth required label="Email" value={email} onChange={handleEmailChange} error={emailError} helperText={emailError ? 'Enter valid e-mail address' : ''} sx={{ mb: 1.5 }} />
             <TextField fullWidth required label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} sx={{ mb: 1.5 }} />
             <TextField fullWidth required label="Repeat password" type="password" value={repeatPassword} onChange={(e) => { setRepeatPassword(e.target.value); setPasswordMismatch(false); }} sx={{ mb: 1.5 }} />
             {passwordMismatch && <Typography color="error" variant="body2" gutterBottom>Passwords do not match.</Typography>}
-            <TextField fullWidth required label="Phone number" value={phoneNumber} onChange={handleBrojChange} error={brojError} helperText={brojError ? 'Enter 10-digit phone number' : ''} sx={{ mb: 1.5 }} />
+            <TextField fullWidth required label="Phone number" value={phoneNumber} onChange={handlePhoneNumberChange} error={phoneNumberError} helperText={phoneNumberError ? 'Enter 10-digit phone number' : ''} sx={{ mb: 1.5 }} />
             <Button type="submit" sx={{ padding: '5px 10px', borderRadius: '15px', fontSize: '1rem', fontWeight: 'bold', mt: 2, mb: 3 }} fullWidth variant="contained"  color="secondary">
               Sign in
             </Button>
