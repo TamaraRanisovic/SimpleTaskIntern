@@ -13,7 +13,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { AppBar, Toolbar} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from './photos/posticon.png';
-import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, ListItemText, Divider } from '@mui/material';
 import axios from "axios";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
@@ -35,12 +35,10 @@ export default function NovaObjava() {
   const navigate2 = useNavigate(); // React Router's navigate function to redirect
   const [openDialog2, setOpenDialog2] = useState(false);
   const [dialogMessage2, setDialogMessage2] = useState('');
-  const [trainingDate, setTrainingDate] = useState(null);
   const [trainingTime, setTrainingTime] = useState(null);
     const [trainingDuration, setTrainingDuration] = useState(null);
 
   const [trainingType, setTrainingType] = useState('');
-  const [bookingMessage, setBookingMessage] = useState('');
 const validTimes = [
   '08:00', '08:30',
   '09:00', '09:30',
@@ -55,12 +53,52 @@ const validTimes = [
   '18:00', '18:30',
 ];
 
+  const [trainingDate, setTrainingDate] = useState(null);
+  const [trainings, setTrainings] = useState([]);
+  const [selectedTrainingId, setSelectedTrainingId] = useState(null);
+  const [bookingMessage, setBookingMessage] = useState('');
+
+  useEffect(() => {
+    if (trainingDate) {
+      const formattedDate = trainingDate.toLocaleDateString('en-CA');
+      axios.get(`http://localhost:8080/trainings/day?date=${formattedDate}`)
+        .then((response) => setTrainings(response.data))
+        .catch((error) => console.error('Error fetching trainings:', error));
+    }
+  }, [trainingDate]);
+
+const handleBookingSubmit = (e) => {
+  e.preventDefault();
+  if (!selectedTrainingId || !korisnicko_ime) {
+    setBookingMessage('Please select a training and make sure you are logged in.');
+    return;
+  }
+
+  axios.post(`http://localhost:8080/trainings/book?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
+    .then(() => {
+      setBookingMessage('Training booked successfully!');
+    })
+    .catch((error) => {
+      const message = error.response?.data || 'Failed to book training.';
+      setBookingMessage(`${message}`);
+    });
+};
+
+
 function parseTimeString(timeStr) {
   const [hours, minutes] = timeStr.split(':').map(Number);
   const date = new Date();
   date.setHours(hours, minutes, 0, 0);
   return date;
 }
+
+
+const toDateObject = (dateArray) => {
+  if (!Array.isArray(dateArray)) return null;
+  const [year, month, day, hour, minute] = dateArray;
+  return new Date(year, month - 1, day, hour, minute); // JS months are 0-based
+};
+
 
 function isValidTime(date) {
   return validTimes.some(t => {
@@ -71,44 +109,6 @@ function isValidTime(date) {
 }
 
 
-const handleBookingSubmit = async (event) => {
-  event.preventDefault();
-  
-  if (!trainingDate || !trainingTime || !trainingType) {
-    setBookingMessage("Please fill in all fields.");
-    return;
-  }
-
-  const bookingData = {
-    username: korisnicko_ime,
-    date: trainingDate,
-    time: trainingTime,
-    type: trainingType,
-  };
-
-  try {
-    const response = await fetch("http://localhost:8080/trainings/book", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify(bookingData),
-    });
-
-    if (response.ok) {
-      setBookingMessage("Training booked successfully!");
-      setTrainingDate(null);
-      setTrainingTime(null);
-      setTrainingType('');
-    } else {
-      setBookingMessage("Failed to book training.");
-    }
-  } catch (error) {
-    console.error("Booking error:", error);
-    setBookingMessage("An error occurred during booking.");
-  }
-};
 
   const handleOpenDialog2 = () => {
     setDialogMessage2("Feature Coming Soon...");
@@ -262,76 +262,72 @@ const handleBookingSubmit = async (event) => {
           </Box>
         </Toolbar>
       </AppBar>
-      <Container component="main" maxWidth="xs">
-  <CssBaseline />
-  <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-      <LockOutlinedIcon />
-    </Avatar>
-    <Typography component="h1" variant="h5">
-      Book a Training
-    </Typography>
-
-    <Box component="form" onSubmit={handleBookingSubmit} noValidate sx={{ mt: 1 }}>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <DatePicker
-          label="Select a date"
-          value={trainingDate}
-          onChange={(newValue) => setTrainingDate(newValue)}
-          renderInput={(params) => <TextField margin="normal" fullWidth {...params} />}
-        />
-
-        <TextField
-  select
-  fullWidth
-  margin="normal"
-  label="Select a time"
-  value={trainingTime}
-  onChange={(e) => setTrainingTime(e.target.value)}
->
-  {validTimes.map((time) => (
-    <MenuItem key={time} value={time}>
-      {time}
-    </MenuItem>
-  ))}
-</TextField>
-
-      </LocalizationProvider>
-
-      <TextField
-        select
-        fullWidth
-        margin="normal"
-        label="Duration"
-        value={trainingDuration}
-        onChange={(e) => setTrainingDuration(e.target.value)}
-      >
-        <MenuItem value={30}>30 minutes</MenuItem>
-        <MenuItem value={60}>60 minutes</MenuItem>
-      </TextField>
-
-      <TextField
-        margin="normal"
-        fullWidth
-        id="trainingType"
-        label="Training Type"
-        name="trainingType"
-        value={trainingType}
-        onChange={(e) => setTrainingType(e.target.value)}
-      />
-
-      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-        Book Training
-      </Button>
-
-      {bookingMessage && (
-        <Typography color="success.main" sx={{ mt: 2 }}>
-          {bookingMessage}
+          <Container component="main" maxWidth="sm">
+      <CssBaseline />
+      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Book a Training
         </Typography>
-      )}
-    </Box>
-  </Box>
-</Container>
+
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            label="Select a date"
+            value={trainingDate}
+            onChange={(newValue) => {
+              setTrainingDate(newValue);
+              setSelectedTrainingId(null);
+              setBookingMessage('');
+            }}
+            renderInput={(params) => <TextField margin="normal" fullWidth {...params} />}
+          />
+        </LocalizationProvider>
+
+        {trainings.length > 0 ? (
+          <>
+            <Typography variant="h6" sx={{ mt: 3 }}>Available Trainings</Typography>
+            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+              {trainings.map((training) => (
+                <React.Fragment key={training.id}>
+                  <ListItem
+                    button
+                    selected={selectedTrainingId === training.id}
+                    onClick={() => setSelectedTrainingId(training.id)}
+                  >
+                    <ListItemText
+                      primary={`${toDateObject(training.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${training.trainingType}`}
+                      secondary={`Duration: ${training.duration} min, Trainer: ${training.trainer}`}
+                    />
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              ))}
+            </List>
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={!selectedTrainingId}
+              onClick={handleBookingSubmit}
+            >
+              Book Selected Training
+            </Button>
+          </>
+        ) : trainingDate ? (
+          <Typography sx={{ mt: 2 }}>No trainings available for selected day.</Typography>
+        ) : null}
+
+        {bookingMessage && (
+          <Typography color="success.main" sx={{ mt: 2 }}>
+            {bookingMessage}
+          </Typography>
+        )}
+      </Box>
+    </Container>
 
 
 

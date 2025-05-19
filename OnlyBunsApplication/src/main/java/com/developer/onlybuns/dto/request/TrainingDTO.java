@@ -10,6 +10,8 @@ import java.util.Set;
 
 public class TrainingDTO {
 
+    private Integer id;
+
     private Integer duration;
 
     private LocalDateTime startTime;
@@ -24,12 +26,21 @@ public class TrainingDTO {
         this.users = new HashSet<RegisteredUserDTO>();
     }
 
-    public TrainingDTO(Integer duration, LocalDateTime startTime, TrainingType trainingType, String trainer, Set<RegisteredUserDTO> users) {
+    public TrainingDTO(Integer id, Integer duration, LocalDateTime startTime, TrainingType trainingType, String trainer, Set<RegisteredUserDTO> users) {
+        this.id = id;
         this.duration = duration;
         this.startTime = startTime;
         this.trainingType = trainingType;
         this.trainer = trainer;
         this.users = users;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getDuration() {

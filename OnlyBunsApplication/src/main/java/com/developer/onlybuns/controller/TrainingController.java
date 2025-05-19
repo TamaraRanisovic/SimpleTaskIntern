@@ -4,6 +4,7 @@ import com.developer.onlybuns.dto.request.TrainingDTO;
 import com.developer.onlybuns.entity.Training;
 import com.developer.onlybuns.service.TrainingService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -47,4 +48,16 @@ public class TrainingController {
             @RequestParam("startOfWeek") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startOfWeek) {
         return trainingService.getTrainingsForWeek(startOfWeek);
     }
+
+    @PostMapping("/book")
+    public ResponseEntity<String> bookTraining(@RequestParam Integer trainingId,
+                                               @RequestParam String username) {
+        try {
+            trainingService.bookTraining(trainingId, username);
+            return ResponseEntity.ok("Training booked successfully!");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body("Booking failed: " + ex.getMessage());
+        }
+    }
+
 }

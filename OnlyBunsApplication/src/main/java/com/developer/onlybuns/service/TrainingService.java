@@ -17,4 +17,6 @@ public interface TrainingService {
     List<TrainingDTO> getTrainingsForDay(LocalDate date);
 
     List<TrainingDTO> getTrainingsForWeek(LocalDate startOfWeek);
+
+    void bookTraining(Integer trainingId, String username);
 }

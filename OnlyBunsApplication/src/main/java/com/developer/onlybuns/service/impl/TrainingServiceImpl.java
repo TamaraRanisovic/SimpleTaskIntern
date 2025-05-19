@@ -5,12 +5,14 @@ import com.developer.onlybuns.dto.request.TrainingDTO;
 import com.developer.onlybuns.entity.RegisteredUser;
 import com.developer.onlybuns.entity.Trainer;
 import com.developer.onlybuns.entity.Training;
+import com.developer.onlybuns.repository.RegisteredUserRepository;
 import com.developer.onlybuns.repository.TrainerRepository;
 import com.developer.onlybuns.repository.TrainingRepository;
 import com.developer.onlybuns.service.RegisteredUserService;
 import com.developer.onlybuns.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,8 +25,12 @@ public class TrainingServiceImpl implements TrainingService {
     @Autowired
     private final TrainingRepository trainingRepository;
 
-    public TrainingServiceImpl(TrainingRepository trainingRepository) {
+    @Autowired
+    private final RegisteredUserRepository registeredUserRepository;
+
+    public TrainingServiceImpl(TrainingRepository trainingRepository, RegisteredUserRepository registeredUserRepository) {
         this.trainingRepository = trainingRepository;
+        this.registeredUserRepository = registeredUserRepository;
     }
 
     public Optional<Training> findById(Integer id) {
@@ -52,7 +58,7 @@ public class TrainingServiceImpl implements TrainingService {
                 RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user.getUsername(), user.getEmail(), user.getName(), user.getSurname(), user.getPhoneNumber());
                 usersDTO.add(registeredUserDTO);
             }
-            TrainingDTO trainingDTO = new TrainingDTO(training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
+            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
             trainingsDTO.add(trainingDTO);
         }
 
@@ -71,10 +77,28 @@ public class TrainingServiceImpl implements TrainingService {
                 RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user.getUsername(), user.getEmail(), user.getName(), user.getSurname(), user.getPhoneNumber());
                 usersDTO.add(registeredUserDTO);
             }
-            TrainingDTO trainingDTO = new TrainingDTO(training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
+            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
             trainingsDTO.add(trainingDTO);
         }
 
         return trainingsDTO;
+    }
+
+    @Transactional
+    public void bookTraining(Integer trainingId, String username) {
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new RuntimeException("Training not found"));
+
+        RegisteredUser user = registeredUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (training.getUsers().contains(user)) {
+            throw new RuntimeException("You already booked this training");
+        }
+
+        training.getUsers().add(user);
+        user.getTrainings().add(training);
+        trainingRepository.save(training);
+        registeredUserRepository.save(user);
     }
 }
