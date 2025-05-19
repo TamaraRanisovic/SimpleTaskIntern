@@ -96,4 +96,11 @@ public class TrainingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @GetMapping("/by-trainer/{username}")
+    public ResponseEntity<List<TrainingDTO>> getTrainingsByTrainer(@PathVariable String username) {
+        List<TrainingDTO> trainings = trainingService.getTrainingsByTrainerUsername(username);
+        return ResponseEntity.ok(trainings);
+    }
+
 }

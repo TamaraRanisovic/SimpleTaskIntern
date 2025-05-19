@@ -26,4 +26,6 @@ public interface TrainingService {
     void cancelBooking(Integer trainingId, String username);
 
     void createTraining(NewTrainingDTO dto);
+
+    List<TrainingDTO> getTrainingsByTrainerUsername(String username);
 }

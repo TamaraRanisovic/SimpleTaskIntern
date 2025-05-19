@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface TrainingRepository extends JpaRepository<Training, Integer> {
     List<Training> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
+    List<Training> findByTrainerUsername(String username);
 
 }
