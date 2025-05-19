@@ -22,7 +22,7 @@ function App() {
           <Route path="/adminSistemView" element={<AdminSistemView/>} />
           <Route path="/novaObjava" element={<NovaObjava/>} />
           <Route path="/objavaPrikaz/:postId" element={<ObjavaPrikaz />} />
-          <Route path="/profilKorisnika/:username" element={<ProfilKorisnika />} />
+          <Route path="/profilKorisnika" element={<ProfilKorisnika />} />
         </Routes>
       </Router>
     </div>

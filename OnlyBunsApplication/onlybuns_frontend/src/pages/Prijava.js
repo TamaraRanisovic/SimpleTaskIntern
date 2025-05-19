@@ -77,7 +77,7 @@ export default function Prijava() {
       if (userRole === "REGISTERED_USER") {
         navigate('/prijavljeniKorisnikPregled');
       } else if (userRole === "TRAINER") {
-        navigate('/adminSistemView');
+        navigate('/profilKorisnika');
       }
     } catch (error) {
       console.error("Error logging in:", error);

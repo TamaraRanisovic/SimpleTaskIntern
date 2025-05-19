@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MenuItem from '@mui/material/MenuItem';
-import { AppBar, Toolbar} from '@mui/material';
+import { AppBar, Toolbar, FormControl, InputLabel, Select} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from './photos/posticon.png';
 import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, ListItemText, Divider } from '@mui/material';
@@ -41,31 +41,40 @@ export default function ProfilKorisnika() {
   const [trainingType, setTrainingType] = useState('');
   const [trainer, setTrainer] = useState('');
   const [message, setMessage] = useState('');
+  const [cancelDeadline, setCancelDeadline] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!trainingDate || !trainingTime || !duration || !trainingType || !korisnicko_ime) {
-      setMessage('Please fill in all fields.');
-      return;
-    }
+  if (!trainingDate || !trainingTime || !duration || !trainingType || !trainer || !cancelDeadline) {
+    setMessage('Please fill in all fields.');
+    return;
+  }
 
-    const [hours, minutes] = trainingTime.split(':').map(Number);
-    const dateTime = new Date(trainingDate);
-    dateTime.setHours(hours, minutes, 0, 0);
+  const [hours, minutes] = trainingTime.split(':').map(Number);
+  const dateTime = new Date(trainingDate);
+  dateTime.setHours(hours, minutes, 0, 0);
 
-    try {
-      await axios.post('http://localhost:8080/trainings/save', {
-        startTime: dateTime.toISOString(),
-        duration,
-        trainingType,
-        korisnicko_ime,
-      });
-      setMessage('Training successfully created.');
-    } catch (error) {
-      setMessage('Error creating training: ' + (error.response?.data || error.message));
-    }
-  };
+  const now = new Date();
+  if (dateTime <= now) {
+    setMessage('Selected time must be in the future.');
+    return;
+  }
+
+  try {
+    await axios.post('http://localhost:8080/trainings/create', {
+      startTime: dateTime.toISOString(),
+      duration: parseInt(duration),
+      trainingType,
+      trainer,
+      cancelDeadline: parseInt(cancelDeadline),
+    });
+    setMessage('Training successfully created.');
+  } catch (error) {
+    setMessage('Error creating training: ' + (error.response?.data || error.message));
+  }
+};
+
 
   const allowedTimes = Array.from({ length: 24 * 2 }, (_, i) => {
     const hour = Math.floor(i / 2);
@@ -73,51 +82,6 @@ export default function ProfilKorisnika() {
     return `${hour.toString().padStart(2, '0')}:${minute}`;
   });
 
-
-  const [trainings, setTrainings] = useState([]);
-  const [selectedTrainingId, setSelectedTrainingId] = useState(null);
-  const [bookingMessage, setBookingMessage] = useState('');
-
-  useEffect(() => {
-    if (trainingDate) {
-      const formattedDate = trainingDate.toLocaleDateString('en-CA');
-      axios.get(`http://localhost:8080/trainings/day?date=${formattedDate}`)
-        .then((response) => setTrainings(response.data))
-        .catch((error) => console.error('Error fetching trainings:', error));
-    }
-  }, [trainingDate]);
-
-const handleBookingSubmit = (e) => {
-  e.preventDefault();
-  if (!selectedTrainingId || !korisnicko_ime) {
-    setBookingMessage('Please select a training and make sure you are logged in.');
-    return;
-  }
-
-  axios.post(`http://localhost:8080/trainings/book?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
-    .then(() => {
-      setBookingMessage('Training booked successfully!');
-    })
-    .catch((error) => {
-      const message = error.response?.data || 'Failed to book training.';
-      setBookingMessage(`${message}`);
-    });
-};
-
-
-function parseTimeString(timeStr) {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-}
-
-
-const toDateObject = (dateArray) => {
-  if (!Array.isArray(dateArray)) return null;
-  const [year, month, day, hour, minute] = dateArray;
-  return new Date(year, month - 1, day, hour, minute); // JS months are 0-based
-};
 
 
 
@@ -168,7 +132,7 @@ const toDateObject = (dateArray) => {
         return response.json();
       })
       .then(data => {
-        if (!data || data.Role !== "REGISTERED_USER") {
+        if (!data || data.Role !== "TRAINER") {
           setDialogMessage('Unauthorized access. Redirecting to login...');
           setOpenDialog(true);
           setTimeout(() => {
@@ -181,6 +145,7 @@ const toDateObject = (dateArray) => {
         setEmail(data.Email);
         setKorisnickoIme(data.Username);
         setRole(data.Role);
+        setTrainer(data.Username);
       })
       .catch(error => {
         console.error('Error decoding JWT token:', error);
@@ -322,23 +287,23 @@ const toDateObject = (dateArray) => {
           <MenuItem value={60}>60 minutes</MenuItem>
         </TextField>
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Training Type"
-          value={trainingType}
-          onChange={(e) => setTrainingType(e.target.value)}
-          required
-        />
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel id="training-type-label">Training Type</InputLabel>
+          <Select
+            labelId="training-type-label"
+            value={trainingType}
+            label="Training Type"
+            onChange={(e) => setTrainingType(e.target.value)}
+          >
+            <MenuItem value="CARDIO">CARDIO</MenuItem>
+            <MenuItem value="YOGA">YOGA</MenuItem>
+            <MenuItem value="FUNCTIONAL">FUNCTIONAL</MenuItem>
+            <MenuItem value="STRENGTH">STRENGTH</MenuItem>
+          </Select>
+        </FormControl>
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Trainer"
-          value={trainer}
-          onChange={(e) => setTrainer(e.target.value)}
-          required
-        />
+        <TextField label="Cancel Deadline (hours)" type="number" value={cancelDeadline} onChange={(e) => setCancelDeadline(e.target.value)} fullWidth />
+
 
         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
           Create Training
