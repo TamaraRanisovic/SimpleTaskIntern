@@ -30,4 +30,8 @@ public interface TrainingService {
     List<TrainingDTO> getTrainingsByTrainerUsername(String username);
 
     void deleteTrainingById(Integer id);
+
+    List<TrainingDTO> getTrainingsForDayByTrainer(LocalDate date, String trainerUsername);
+    List<TrainingDTO> getTrainingsForWeekByTrainer(LocalDate startOfWeek, String trainerUsername);
+
 }

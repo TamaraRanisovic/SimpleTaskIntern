@@ -9,6 +9,7 @@ import NovaObjava from "./pages/NovaObjava";
 import ObjavaPrikaz from './pages/ObjavaPrikaz';
 import ProfilKorisnika from './pages/ProfilKorisnika';
 import React from 'react';
+import BookedTrainings from "./pages/BookedTrainings";
 
 function App() {
   return (
@@ -21,8 +22,9 @@ function App() {
           <Route path="/prijavljeniKorisnikPregled" element={<PrijavljeniKorisnikPregled/>} />
           <Route path="/adminSistemView" element={<AdminSistemView/>} />
           <Route path="/novaObjava" element={<NovaObjava/>} />
-          <Route path="/objavaPrikaz/:postId" element={<ObjavaPrikaz />} />
+          <Route path="/objavaPrikaz" element={<ObjavaPrikaz />} />
           <Route path="/profilKorisnika" element={<ProfilKorisnika />} />
+          <Route path="/bookedTrainings" element={<BookedTrainings />} />
         </Routes>
       </Router>
     </div>

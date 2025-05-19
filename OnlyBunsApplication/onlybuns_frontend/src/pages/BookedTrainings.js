@@ -17,11 +17,13 @@ import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, Lis
 import axios from "axios";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 
 const defaultTheme = createTheme();
 
-export default function ObjavaPrikaz() {
+export default function BookedTrainings() {
   const [korisnicko_ime, setKorisnickoIme] = useState('');
 
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
@@ -57,40 +59,47 @@ const validTimes = [
   const [trainings, setTrainings] = useState([]);
   const [selectedTrainingId, setSelectedTrainingId] = useState(null);
   const [bookingMessage, setBookingMessage] = useState('');
+  const [viewType, setViewType] = useState('daily'); // 'daily' or 'weekly'
 
+useEffect(() => {
+  if (!trainingDate) return;
 
-const fetchBookedTrainings = () => {
-    if (korisnicko_ime) {
-      axios.get(`http://localhost:8080/trainings/by-trainer/${korisnicko_ime}`)
-        .then((response) => setTrainings(response.data))
-        .catch((error) => console.error('Error fetching booked trainings:', error));
+  const fetchTrainings = async () => {
+    try {
+      const formattedDate = trainingDate.toLocaleDateString('en-CA');
+      const endpoint =
+        viewType === 'daily'
+          ? `http://localhost:8080/trainings/trainer/day?date=${formattedDate}&trainerUsername=${korisnicko_ime}`
+          : `http://localhost:8080/trainings/trainer/week?startOfWeek=${formattedDate}&trainerUsername=${korisnicko_ime}`;
+
+      const response = await axios.get(endpoint);
+      setTrainings(response.data);
+    } catch (error) {
+      setTrainings([]);
+      console.error('Failed to fetch trainings:', error);
     }
   };
 
-useEffect(() => {
-    fetchBookedTrainings();
-  }, [korisnicko_ime]);
+  fetchTrainings();
+}, [trainingDate, viewType, korisnicko_ime]);
 
-  
 
-const handleCancelSubmit = (e) => {
+const handleBookingSubmit = (e) => {
   e.preventDefault();
   if (!selectedTrainingId || !korisnicko_ime) {
     setBookingMessage('Please select a training and make sure you are logged in.');
     return;
   }
 
-  axios.delete(`http://localhost:8080/trainings/delete/${selectedTrainingId}`)
+  axios.post(`http://localhost:8080/trainings/book?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
     .then(() => {
-      setBookingMessage('Training cancelled successfully!');
-      fetchBookedTrainings();
+      setBookingMessage('Training booked successfully!');
     })
     .catch((error) => {
-      const message = error.response?.data || 'Failed to cancel training.';
+      const message = error.response?.data || 'Failed to book training.';
       setBookingMessage(`${message}`);
     });
 };
-
 
 
 function parseTimeString(timeStr) {
@@ -277,13 +286,38 @@ function isValidTime(date) {
           <FitnessCenterIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Cancel a Training
+          Available Trainings
         </Typography>
-
+        <ToggleButtonGroup
+        value={viewType}
+        exclusive
+        onChange={(event, newView) => {
+            if (newView) {
+            setViewType(newView);
+            setSelectedTrainingId(null);
+            setBookingMessage('');
+            }
+        }}
+        sx={{ mt: 2 }}
+        >
+        <ToggleButton value="daily">Daily</ToggleButton>
+        <ToggleButton value="weekly">Weekly</ToggleButton>
+        </ToggleButtonGroup>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            label="Select a date"
+            value={trainingDate}
+            onChange={(newValue) => {
+              setTrainingDate(newValue);
+              setSelectedTrainingId(null);
+              setBookingMessage('');
+            }}
+            renderInput={(params) => <TextField margin="normal" fullWidth {...params} />}
+          />
+        </LocalizationProvider>
 
         {trainings.length > 0 ? (
           <>
-            <Typography variant="h6" sx={{ mt: 3 }}>Available Trainings</Typography>
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
               {trainings.map((training) => (
                 <React.Fragment key={training.id}>
@@ -302,16 +336,8 @@ function isValidTime(date) {
               ))}
             </List>
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={!selectedTrainingId}
-              onClick={handleCancelSubmit}
-            >
-              Cancel Selected Training
-            </Button>
+            
+             
           </>
         ) : trainingDate ? (
           <Typography sx={{ mt: 2 }}>No trainings available for selected day.</Typography>

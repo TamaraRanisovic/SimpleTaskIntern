@@ -91,6 +91,46 @@ public class TrainingServiceImpl implements TrainingService {
         return trainingsDTO;
     }
 
+    @Override
+    public List<TrainingDTO> getTrainingsForDayByTrainer(LocalDate date, String trainerUsername) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+        Trainer trainer = trainerRepository.findByUsername(trainerUsername);
+        if (trainer == null) {
+            throw new EntityNotFoundException("Trainer with username " + trainerUsername + " not found.");
+        }
+
+        List<TrainingDTO> trainingsByTrainer = new ArrayList<TrainingDTO>();
+        List<TrainingDTO> trainingsDTO = getTrainingsForDay(date);
+        for (TrainingDTO trainingDTO : trainingsDTO) {
+            if (trainingDTO.getTrainer().equals(trainerUsername)) {
+                trainingsByTrainer.add(trainingDTO);
+            }
+        }
+        return trainingsByTrainer;
+    }
+
+    @Override
+    public List<TrainingDTO> getTrainingsForWeekByTrainer(LocalDate startOfWeek, String trainerUsername) {
+        LocalDateTime start = startOfWeek.atStartOfDay();
+        LocalDateTime end = start.plusDays(6).with(LocalTime.MAX);
+
+        Trainer trainer = trainerRepository.findByUsername(trainerUsername);
+        if (trainer == null) {
+            throw new EntityNotFoundException("Trainer with username " + trainerUsername + " not found.");
+        }
+        List<TrainingDTO> trainingsByTrainer = new ArrayList<TrainingDTO>();
+        List<TrainingDTO> trainingsDTO = getTrainingsForWeek(startOfWeek);
+        for (TrainingDTO trainingDTO : trainingsDTO) {
+            if (trainingDTO.getTrainer().equals(trainerUsername)) {
+                trainingsByTrainer.add(trainingDTO);
+            }
+        }
+        return trainingsByTrainer;
+    }
+
+
     @Transactional
     public void bookTraining(Integer trainingId, String username) {
         Training training = trainingRepository.findById(trainingId)

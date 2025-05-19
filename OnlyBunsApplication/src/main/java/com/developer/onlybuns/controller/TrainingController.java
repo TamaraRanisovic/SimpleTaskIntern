@@ -115,4 +115,18 @@ public class TrainingController {
     }
 
 
+    @GetMapping("/trainer/day")
+    public List<TrainingDTO> getTrainingsForDayByTrainer(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam("trainerUsername") String trainerUsername) {
+        return trainingService.getTrainingsForDayByTrainer(date, trainerUsername);
+    }
+
+    @GetMapping("/trainer/week")
+    public List<TrainingDTO> getTrainingsForWeekByTrainer(
+            @RequestParam("startOfWeek") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startOfWeek,
+            @RequestParam("trainerUsername") String trainerUsername) {
+        return trainingService.getTrainingsForWeekByTrainer(startOfWeek, trainerUsername);
+    }
+
 }
