@@ -60,4 +60,25 @@ public class TrainingController {
         }
     }
 
+
+    @PostMapping("/cancel")
+    public ResponseEntity<String> cancelBooking(@RequestParam Integer trainingId,
+                                                @RequestParam String username) {
+        try {
+            trainingService.cancelBooking(trainingId, username);
+            return ResponseEntity.ok("Training booking cancelled successfully!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/booked")
+    public ResponseEntity<List<TrainingDTO>> getBookedTrainings(@RequestParam String username) {
+        try {
+            List<TrainingDTO> bookedTrainings = trainingService.getBookedTrainingsForUser(username);
+            return ResponseEntity.ok(bookedTrainings);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

@@ -101,4 +101,44 @@ public class TrainingServiceImpl implements TrainingService {
         trainingRepository.save(training);
         registeredUserRepository.save(user);
     }
+
+
+    @Transactional
+    public void cancelBooking(Integer trainingId, String username) {
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new RuntimeException("Training not found"));
+
+        RegisteredUser user = registeredUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!training.getUsers().contains(user)) {
+            throw new RuntimeException("User has not booked this training");
+        }
+
+        training.getUsers().remove(user);
+        user.getTrainings().remove(training);
+        trainingRepository.save(training);
+        registeredUserRepository.save(user);
+    }
+
+    public List<TrainingDTO> getBookedTrainingsForUser(String username) {
+        RegisteredUser user = registeredUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+        Set<Training> trainings = user.getTrainings();
+        List<TrainingDTO> trainingsDTO = new ArrayList<TrainingDTO>();
+
+        for (Training training : trainings) {
+            Set<RegisteredUserDTO> usersDTO = new HashSet<RegisteredUserDTO>();
+            for (RegisteredUser user1 : training.getUsers()) {
+                RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user1.getUsername(), user1.getEmail(), user1.getName(), user1.getSurname(), user1.getPhoneNumber());
+                usersDTO.add(registeredUserDTO);
+            }
+            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
+            trainingsDTO.add(trainingDTO);
+        }
+
+        return trainingsDTO;
+    }
 }

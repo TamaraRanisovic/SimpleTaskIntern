@@ -155,7 +155,7 @@ const PrijavljeniKorisnikPregled = () => {
               Feed
             </Button>
             <Button component={Link} to="/novaObjava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-              New post
+              Book a training
             </Button>
             <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
               Trends
