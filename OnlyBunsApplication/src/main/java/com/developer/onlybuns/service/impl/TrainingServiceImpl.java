@@ -1,5 +1,6 @@
 package com.developer.onlybuns.service.impl;
 
+import com.developer.onlybuns.dto.request.NewTrainingDTO;
 import com.developer.onlybuns.dto.request.RegisteredUserDTO;
 import com.developer.onlybuns.dto.request.TrainingDTO;
 import com.developer.onlybuns.entity.RegisteredUser;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -28,9 +30,13 @@ public class TrainingServiceImpl implements TrainingService {
     @Autowired
     private final RegisteredUserRepository registeredUserRepository;
 
-    public TrainingServiceImpl(TrainingRepository trainingRepository, RegisteredUserRepository registeredUserRepository) {
+    @Autowired
+    private final TrainerRepository trainerRepository;
+
+    public TrainingServiceImpl(TrainingRepository trainingRepository, RegisteredUserRepository registeredUserRepository, TrainerRepository trainerRepository) {
         this.trainingRepository = trainingRepository;
         this.registeredUserRepository = registeredUserRepository;
+        this.trainerRepository = trainerRepository;
     }
 
     public Optional<Training> findById(Integer id) {
@@ -140,5 +146,43 @@ public class TrainingServiceImpl implements TrainingService {
         }
 
         return trainingsDTO;
+    }
+
+
+    @Override
+    public void createTraining(NewTrainingDTO dto) {
+        // Validate the incoming DTO
+        validateTrainingInput(dto);
+
+        // Attempt to find the trainer by username
+        Trainer trainer = trainerRepository.findByUsername(dto.getTrainer());
+        if (trainer == null) {
+            throw new EntityNotFoundException("Trainer with username '" + dto.getTrainer() + "' not found.");
+        }
+
+        // Create the training entity
+        Training training = new Training();
+        training.setDuration(dto.getDuration());
+        training.setStartTime(dto.getStartTime());
+        training.setTrainingType(dto.getTrainingType());
+        training.setTrainer(trainer);
+        training.setCancelDeadline(dto.getCancelDeadline());
+
+        // Save the training
+        trainingRepository.save(training);
+    }
+
+
+    private void validateTrainingInput(NewTrainingDTO dto) {
+        int minutes = dto.getStartTime().getMinute();
+        int duration = dto.getDuration();
+
+        if (!(duration == 30 || duration == 60)) {
+            throw new IllegalArgumentException("Duration must be 30 or 60 minutes.");
+        }
+
+        if (!(minutes == 0 || minutes == 30)) {
+            throw new IllegalArgumentException("Start time must be on the hour or half-hour.");
+        }
     }
 }

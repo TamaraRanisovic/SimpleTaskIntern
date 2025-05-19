@@ -12,6 +12,8 @@ import java.util.List;
 public interface TrainerRepository extends JpaRepository<Trainer, Integer> {
     Trainer findByEmailAndPassword(String email, String password);
     Trainer findByEmail(String email);
+
+    Trainer findByUsername(String username);
     @Query("SELECT email FROM Trainer")
     List<String> findAllEmails();
 

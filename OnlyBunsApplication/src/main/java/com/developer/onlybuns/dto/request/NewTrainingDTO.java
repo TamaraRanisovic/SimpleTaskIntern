@@ -1,14 +1,12 @@
 package com.developer.onlybuns.dto.request;
 
+
 import com.developer.onlybuns.enums.TrainingType;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
-public class TrainingDTO {
-
-    private Integer id;
+public class NewTrainingDTO {
 
     private Integer duration;
 
@@ -16,31 +14,19 @@ public class TrainingDTO {
 
     private TrainingType trainingType;
 
-    private Integer cancelDeadline;
-
     private String trainer;
 
-    private Set<RegisteredUserDTO> users;
+    private Integer cancelDeadline;
 
-    public TrainingDTO() {
-        this.users = new HashSet<RegisteredUserDTO>();
+    public NewTrainingDTO() {
     }
 
-    public TrainingDTO(Integer id, Integer duration, LocalDateTime startTime, TrainingType trainingType, String trainer, Set<RegisteredUserDTO> users) {
-        this.id = id;
+    public NewTrainingDTO(Integer duration, LocalDateTime startTime, TrainingType trainingType, String trainer, Integer cancelDeadline) {
         this.duration = duration;
         this.startTime = startTime;
         this.trainingType = trainingType;
         this.trainer = trainer;
-        this.users = users;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+        this.cancelDeadline = cancelDeadline;
     }
 
     public Integer getDuration() {
@@ -75,11 +61,11 @@ public class TrainingDTO {
         this.trainer = trainer;
     }
 
-    public Set<RegisteredUserDTO> getUsers() {
-        return users;
+    public Integer getCancelDeadline() {
+        return cancelDeadline;
     }
 
-    public void setUsers(Set<RegisteredUserDTO> users) {
-        this.users = users;
+    public void setCancelDeadline(Integer cancelDeadline) {
+        this.cancelDeadline = cancelDeadline;
     }
 }

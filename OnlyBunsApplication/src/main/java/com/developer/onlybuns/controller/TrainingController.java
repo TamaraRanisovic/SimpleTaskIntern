@@ -1,12 +1,15 @@
 package com.developer.onlybuns.controller;
 
+import com.developer.onlybuns.dto.request.NewTrainingDTO;
 import com.developer.onlybuns.dto.request.TrainingDTO;
 import com.developer.onlybuns.entity.Training;
 import com.developer.onlybuns.service.TrainingService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +82,18 @@ public class TrainingController {
             return ResponseEntity.ok(bookedTrainings);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<String> createTraining(@RequestBody @Valid NewTrainingDTO dto) {
+        try {
+            trainingService.createTraining(dto);
+            return ResponseEntity.ok("Training successfully created.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

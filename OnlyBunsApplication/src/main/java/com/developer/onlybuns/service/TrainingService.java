@@ -1,5 +1,6 @@
 package com.developer.onlybuns.service;
 
+import com.developer.onlybuns.dto.request.NewTrainingDTO;
 import com.developer.onlybuns.dto.request.TrainingDTO;
 import com.developer.onlybuns.entity.Training;
 
@@ -23,4 +24,6 @@ public interface TrainingService {
     List<TrainingDTO> getBookedTrainingsForUser(String username);
 
     void cancelBooking(Integer trainingId, String username);
+
+    void createTraining(NewTrainingDTO dto);
 }
