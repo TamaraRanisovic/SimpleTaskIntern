@@ -21,7 +21,7 @@ import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-picker
 
 const defaultTheme = createTheme();
 
-export default function ObjavaPrikaz() {
+export default function BookTrainingUser() {
   const [korisnicko_ime, setKorisnickoIme] = useState('');
 
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
@@ -58,61 +58,32 @@ const validTimes = [
   const [selectedTrainingId, setSelectedTrainingId] = useState(null);
   const [bookingMessage, setBookingMessage] = useState('');
 
-
-const fetchBookedTrainings = () => {
-    if (korisnicko_ime) {
-      axios.get(`http://localhost:8080/trainings/by-trainer/${korisnicko_ime}`)
+  useEffect(() => {
+    if (trainingDate) {
+      const formattedDate = trainingDate.toLocaleDateString('en-CA');
+      axios.get(`http://localhost:8080/trainings/day?date=${formattedDate}`)
         .then((response) => setTrainings(response.data))
-        .catch((error) => console.error('Error fetching booked trainings:', error));
+        .catch((error) => console.error('Error fetching trainings:', error));
     }
-  };
+  }, [trainingDate]);
 
-useEffect(() => {
-    fetchBookedTrainings();
-  }, [korisnicko_ime]);
-
-  
-
-const handleCancelSubmit = async (e) => {
+const handleBookingSubmit = (e) => {
   e.preventDefault();
-
   if (!selectedTrainingId || !korisnicko_ime) {
     setBookingMessage('Please select a training and make sure you are logged in.');
     return;
   }
 
-  try {
-    // Step 1: Fetch training details
-    const trainingResponse = await axios.get(`http://localhost:8080/trainings/${selectedTrainingId}`);
-    const training = trainingResponse.data;
+  axios.post(`http://localhost:8080/trainings/book?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
+    .then(() => {
+      setBookingMessage('Training booked successfully!');
+    })
+    .catch((error) => {
+      const message = error.response?.data || 'Failed to book training.';
+      setBookingMessage(`${message}`);
+    });
+};
 
-    // Step 2: Convert startTime array to Date object
-  // Calculate deadline time
-    const startTime = toDateObject(training.startTime);
-    const now = new Date();
-    const cancelDeadlineHours = parseInt(training.cancelDeadline, 10);
-    const latestCancelTime = new Date(startTime.getTime() - cancelDeadlineHours * 60 * 60 * 1000);
-
-    // Check if current time is before cancel deadline
-    if (now > latestCancelTime) {
-      alert(`You can no longer cancel this booking. Cancellations must be made at least ${training.cancelDeadline} hours before the training starts.`);
-      return;
-    }
-
-    // Step 4: Call DELETE endpoint
-      await axios.delete(`http://localhost:8080/trainings/delete/${selectedTrainingId}`)
-      
-      setBookingMessage('Booking cancelled successfully!');
-      fetchBookedTrainings(); // Refresh the booked trainings list
-    } catch (error) {
-      console.error("Error cancelling booking:", error);
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        'Failed to cancel booking.';
-      setBookingMessage(message);
-    }
-    };
 
 function parseTimeString(timeStr) {
   const [hours, minutes] = timeStr.split(':').map(Number);
@@ -150,14 +121,14 @@ function isValidTime(date) {
   
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    navigate2('/prijava');
+    navigate2('/login');
   };
 
   const logout = () => {
     localStorage.removeItem("jwtToken"); // Remove token
 
     // Redirect to login page
-    window.location.href = "/prijava";  // or use `useNavigate` from React Router v6
+    window.location.href = "/login";  // or use `useNavigate` from React Router v6
   };
 
     
@@ -166,7 +137,7 @@ function isValidTime(date) {
         setDialogMessage('No user found. Please log in.');
         setOpenDialog(true);
         setTimeout(() => {
-          navigate('/prijava'); // Redirect to login after 15 seconds
+          navigate('/login'); // Redirect to login after 15 seconds
         }, 15000); // Delay redirection to allow user to read the message
         return;
       }
@@ -185,11 +156,11 @@ function isValidTime(date) {
         return response.json();
       })
       .then(data => {
-        if (!data || data.Role !== "TRAINER") {
+        if (!data || data.Role !== "REGISTERED_USER") {
           setDialogMessage('Unauthorized access. Redirecting to login...');
           setOpenDialog(true);
           setTimeout(() => {
-            navigate('/prijava');
+            navigate('/login');
           }, 15000);
           return;
         }
@@ -204,7 +175,7 @@ function isValidTime(date) {
         setDialogMessage('Session expired or invalid token. Please log in again.');
         setOpenDialog(true);
         setTimeout(() => {
-          navigate('/prijava');
+          navigate('/login');
         }, 15000);
       });
   }, [token, navigate]);
@@ -252,20 +223,11 @@ function isValidTime(date) {
             </Box>
           </Link>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button component={Link} to="/prijavljeniKorisnikPregled" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Feed
+              <Button component={Link} to="/bookTrainingUser" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Book training
               </Button>
-              <Button component={Link} to="/novaObjava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Book a training
-              </Button>
-              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Trends
-              </Button>
-              <Button component={Link} to={`/obliznjeObjave/${korisnicko_ime}`}  color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Nearby Posts
-              </Button>
-              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Chat
+              <Button component={Link} to="/cancelTrainingUser" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Cancel training
               </Button>
               {token && korisnicko_ime ? ( 
                 <Button onClick={logout} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold'}}>
@@ -280,10 +242,10 @@ function isValidTime(date) {
               </Typography>
             ) : (
               <>
-                <Button component={Link} to="/registracija" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                <Button component={Link} to="/registration" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                   Sign In
                 </Button>
-                <Button component={Link} to="/prijava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                <Button component={Link} to="/login" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                   Log In
                 </Button>
               </>
@@ -298,9 +260,21 @@ function isValidTime(date) {
           <FitnessCenterIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Cancel a Training
+          Book a Training
         </Typography>
 
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            label="Select a date"
+            value={trainingDate}
+            onChange={(newValue) => {
+              setTrainingDate(newValue);
+              setSelectedTrainingId(null);
+              setBookingMessage('');
+            }}
+            renderInput={(params) => <TextField margin="normal" fullWidth {...params} />}
+          />
+        </LocalizationProvider>
 
         {trainings.length > 0 ? (
           <>
@@ -329,9 +303,9 @@ function isValidTime(date) {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
               disabled={!selectedTrainingId}
-              onClick={handleCancelSubmit}
+              onClick={handleBookingSubmit}
             >
-              Cancel Selected Training
+              Book Selected Training
             </Button>
           </>
         ) : trainingDate ? (

@@ -102,14 +102,14 @@ const toDateObject = (dateArray) => {
   
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    navigate2('/prijava');
+    navigate2('/login');
   };
 
   const logout = () => {
     localStorage.removeItem("jwtToken"); // Remove token
 
     // Redirect to login page
-    window.location.href = "/prijava";  // or use `useNavigate` from React Router v6
+    window.location.href = "/login";  // or use `useNavigate` from React Router v6
   };
 
     
@@ -118,7 +118,7 @@ const toDateObject = (dateArray) => {
         setDialogMessage('No user found. Please log in.');
         setOpenDialog(true);
         setTimeout(() => {
-          navigate('/prijava'); // Redirect to login after 15 seconds
+          navigate('/login'); // Redirect to login after 15 seconds
         }, 15000); // Delay redirection to allow user to read the message
         return;
       }
@@ -141,7 +141,7 @@ const toDateObject = (dateArray) => {
           setDialogMessage('Unauthorized access. Redirecting to login...');
           setOpenDialog(true);
           setTimeout(() => {
-            navigate('/prijava');
+            navigate('/login');
           }, 15000);
           return;
         }
@@ -156,7 +156,7 @@ const toDateObject = (dateArray) => {
         setDialogMessage('Session expired or invalid token. Please log in again.');
         setOpenDialog(true);
         setTimeout(() => {
-          navigate('/prijava');
+          navigate('/login');
         }, 15000);
       });
   }, [token, navigate]);
@@ -246,10 +246,10 @@ const handleCancelBooking = (username) => {
             </Box>
           </Link>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button component={Link} to="/prijavljeniKorisnikPregled" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+              <Button component={Link} to="/bookTrainingUser" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                 Feed
               </Button>
-              <Button component={Link} to="/novaObjava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+              <Button component={Link} to="/bookTrainingUser" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                 Book a training
               </Button>
               <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
@@ -274,10 +274,10 @@ const handleCancelBooking = (username) => {
               </Typography>
             ) : (
               <>
-                <Button component={Link} to="/registracija" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                <Button component={Link} to="/registration" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                   Sign In
                 </Button>
-                <Button component={Link} to="/prijava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                <Button component={Link} to="/login" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                   Log In
                 </Button>
               </>

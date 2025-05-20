@@ -14,7 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import logo from './photos/posticon.png';
 const defaultTheme = createTheme();
 
-export default function Registracija() {
+export default function Registration() {
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -162,7 +162,7 @@ export default function Registracija() {
         setTimeout(() => {
           if (isMounted.current) {
             setSuccessMessage("");
-            navigate("/prijava");
+            navigate("/login");
           }
         }, 15000);
       } else if (response.status === 400) {
@@ -190,7 +190,7 @@ export default function Registracija() {
           </Box>
         </Link>
         <Box sx={{ display: 'flex', gap: 2, mr: 2 }}>
-          <Button component={Link} to="/prijava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+          <Button component={Link} to="/login" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
             Log In
           </Button>
         </Box>

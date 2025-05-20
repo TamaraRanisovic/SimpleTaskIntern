@@ -14,7 +14,7 @@ import { AppBar, Toolbar} from '@mui/material';
 import logo from './photos/posticon.png';
 const defaultTheme = createTheme();
 
-export default function Prijava() {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -75,9 +75,9 @@ export default function Prijava() {
       const userRole = decodedData.Role;
   
       if (userRole === "REGISTERED_USER") {
-        navigate('/prijavljeniKorisnikPregled');
+        navigate('/bookTrainingUser');
       } else if (userRole === "TRAINER") {
-        navigate('/profilKorisnika');
+        navigate('/bookTrainingTrainer');
       }
     } catch (error) {
       console.error("Error logging in:", error);
@@ -100,7 +100,7 @@ export default function Prijava() {
           </Box>
           </Link>
           <Box sx={{ display: 'flex', gap: 2, mr: 2 }}>
-            <Button component={Link} to="/registracija" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+            <Button component={Link} to="/registration" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
               Sign In
             </Button>
           </Box>
@@ -170,7 +170,7 @@ export default function Prijava() {
           >
             Log in
           </Button>
-          <Link to="/registracija"> Don't have an account? Sign up </Link>
+          <Link to="/registration"> Don't have an account? Sign up </Link>
         </Box>
       </Box>
     </Container>

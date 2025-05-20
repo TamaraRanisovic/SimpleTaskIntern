@@ -138,14 +138,14 @@ function isValidTime(date) {
   
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    navigate2('/prijava');
+    navigate2('/login');
   };
 
   const logout = () => {
     localStorage.removeItem("jwtToken"); // Remove token
 
     // Redirect to login page
-    window.location.href = "/prijava";  // or use `useNavigate` from React Router v6
+    window.location.href = "/login";  // or use `useNavigate` from React Router v6
   };
 
     
@@ -154,7 +154,7 @@ function isValidTime(date) {
         setDialogMessage('No user found. Please log in.');
         setOpenDialog(true);
         setTimeout(() => {
-          navigate('/prijava'); // Redirect to login after 15 seconds
+          navigate('/login'); // Redirect to login after 15 seconds
         }, 15000); // Delay redirection to allow user to read the message
         return;
       }
@@ -177,7 +177,7 @@ function isValidTime(date) {
           setDialogMessage('Unauthorized access. Redirecting to login...');
           setOpenDialog(true);
           setTimeout(() => {
-            navigate('/prijava');
+            navigate('/login');
           }, 15000);
           return;
         }
@@ -192,7 +192,7 @@ function isValidTime(date) {
         setDialogMessage('Session expired or invalid token. Please log in again.');
         setOpenDialog(true);
         setTimeout(() => {
-          navigate('/prijava');
+          navigate('/login');
         }, 15000);
       });
   }, [token, navigate]);
@@ -240,20 +240,14 @@ function isValidTime(date) {
             </Box>
           </Link>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button component={Link} to="/prijavljeniKorisnikPregled" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Feed
+              <Button component={Link} to="/bookedTrainings" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                All trainings
               </Button>
-              <Button component={Link} to="/novaObjava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Book a training
+              <Button component={Link} to="/bookTrainingTrainer" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Book training
               </Button>
-              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Trends
-              </Button>
-              <Button component={Link} to={`/obliznjeObjave/${korisnicko_ime}`}  color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Nearby Posts
-              </Button>
-              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Chat
+              <Button component={Link} to="/cancelTrainingTrainer" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Cancel training
               </Button>
               {token && korisnicko_ime ? ( 
                 <Button onClick={logout} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold'}}>
@@ -268,10 +262,10 @@ function isValidTime(date) {
               </Typography>
             ) : (
               <>
-                <Button component={Link} to="/registracija" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                <Button component={Link} to="/registration" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                   Sign In
                 </Button>
-                <Button component={Link} to="/prijava" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                <Button component={Link} to="/login" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
                   Log In
                 </Button>
               </>
