@@ -163,8 +163,20 @@ const toDateObject = (dateArray) => {
 
 
 const handleCancelBooking = (username) => {
-  if (!training || !training.id) {
-    alert("Training data is missing.");
+  if (!training || !training.id || !training.startTime || training.cancelDeadline == null) {
+    alert("Training data is incomplete.");
+    return;
+  }
+
+  // Calculate deadline time
+  const startTime = toDateObject(training.startTime);
+  const now = new Date();
+  const cancelDeadlineHours = parseInt(training.cancelDeadline, 10);
+  const latestCancelTime = new Date(startTime.getTime() - cancelDeadlineHours * 60 * 60 * 1000);
+
+  // Check if current time is before cancel deadline
+  if (now > latestCancelTime) {
+    alert(`You can no longer cancel this booking. Cancellations must be made at least ${training.cancelDeadline} hours before the training starts.`);
     return;
   }
 
