@@ -327,7 +327,13 @@ function isValidTime(date) {
                     onClick={() => navigate(`/trainingView/${training.id}`)}
                   >
                     <ListItemText
-                      primary={`${toDateObject(training.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${training.trainingType}`}
+                      primary={`${toDateObject(training.startTime).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })} - ${training.trainingType}`}
                       secondary={`Duration: ${training.duration} min, Trainer: ${training.trainer}`}
                     />
                   </ListItem>

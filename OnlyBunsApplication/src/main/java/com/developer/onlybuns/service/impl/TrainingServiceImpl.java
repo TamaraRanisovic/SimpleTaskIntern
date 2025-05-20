@@ -13,6 +13,8 @@ import com.developer.onlybuns.service.RegisteredUserService;
 import com.developer.onlybuns.service.TrainingService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,9 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Autowired
     private final TrainerRepository trainerRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     public TrainingServiceImpl(TrainingRepository trainingRepository, RegisteredUserRepository registeredUserRepository, TrainerRepository trainerRepository) {
         this.trainingRepository = trainingRepository;
@@ -156,10 +161,19 @@ public class TrainingServiceImpl implements TrainingService {
             throw new RuntimeException("You already booked this training");
         }
 
+
         training.getUsers().add(user);
         user.getTrainings().add(training);
         trainingRepository.save(training);
         registeredUserRepository.save(user);
+
+        try {
+            TrainingDTO trainingDTO = findById(trainingId);
+            sendBookingEmail(user.getEmail(), trainingDTO);
+        } catch (Exception e) {
+            System.err.println("Failed to send booking email: " + e.getMessage());
+        }
+
     }
 
 
@@ -191,6 +205,13 @@ public class TrainingServiceImpl implements TrainingService {
         user.getTrainings().remove(training);
         trainingRepository.save(training);
         registeredUserRepository.save(user);
+
+        try {
+            TrainingDTO trainingDTO = findById(training.getId());
+            sendTrainingCancellationEmail(user.getEmail(), trainingDTO);
+        } catch (Exception e) {
+            System.err.println("Failed to send training cancellation email: " + e.getMessage());
+        }
     }
 
     public List<TrainingDTO> getBookedTrainingsForUser(String username) {
@@ -236,6 +257,13 @@ public class TrainingServiceImpl implements TrainingService {
 
         // Save the training
         trainingRepository.save(training);
+
+        try {
+            TrainingDTO trainingDTO = findById(training.getId());
+            sendBookingEmail(trainer.getEmail(), trainingDTO);
+        } catch (Exception e) {
+            System.err.println("Failed to send booking email: " + e.getMessage());
+        }
     }
 
 
@@ -293,6 +321,7 @@ public class TrainingServiceImpl implements TrainingService {
                     String.format("You can no longer cancel this booking. Cancellations must be made at least %d hours before training start.", cancelDeadlineHours)
             );
         }
+        TrainingDTO trainingDTO = findById(training.getId());
 
         Set<RegisteredUser> users = training.getUsers();
         if (users != null) {
@@ -304,6 +333,13 @@ public class TrainingServiceImpl implements TrainingService {
         }
 
         trainingRepository.delete(training);
+
+        try {
+            Trainer trainer = trainerRepository.findByUsername(trainingDTO.getTrainer());
+            sendTrainingCancellationEmail(trainer.getEmail(), trainingDTO);
+        } catch (Exception e) {
+            System.err.println("Failed to send training cancellation email: " + e.getMessage());
+        }
     }
 
 
@@ -339,6 +375,58 @@ public class TrainingServiceImpl implements TrainingService {
 
         trainingRepository.save(training);
         registeredUserRepository.save(user);
+
+        try {
+            TrainingDTO trainingDTO = findById(training.getId());
+            sendTrainingCancellationEmail(user.getEmail(), trainingDTO);
+        } catch (Exception e) {
+            System.err.println("Failed to send training cancellation email: " + e.getMessage());
+        }
     }
+
+
+    private void sendBookingEmail(String email, TrainingDTO trainingDTO) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("ranisovic.in1.2020@uns.ac.rs");
+        message.setTo(email);
+        message.setSubject("Training Booking Confirmation");
+
+        StringBuilder emailBody = new StringBuilder();
+        emailBody.append("You have successfully booked the following training:\n\n");
+        emailBody.append("🏋️ Training Type: ").append(trainingDTO.getTrainingType()).append("\n");
+        emailBody.append("🕒 Start Time: ").append(trainingDTO.getStartTime()).append("\n");
+        emailBody.append("⏱️ Duration: ").append(trainingDTO.getDuration()).append(" minutes\n");
+        emailBody.append("👤 Trainer: ").append(trainingDTO.getTrainer()).append("\n");
+        emailBody.append("❗ Cancel Deadline: ").append(trainingDTO.getCancelDeadline())
+                .append(" hours before the start time\n\n");
+        emailBody.append("Thank you for booking! We look forward to seeing you.\n");
+        emailBody.append("Best regards,\nYour Training Center Team");
+
+        message.setText(emailBody.toString());
+        mailSender.send(message);
+    }
+
+
+    private void sendTrainingCancellationEmail(String email, TrainingDTO trainingDTO) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("ranisovic.in1.2020@uns.ac.rs");
+        message.setTo(email);
+        message.setSubject("Training Booking Cancelled");
+
+        StringBuilder emailBody = new StringBuilder();
+        emailBody.append("You have successfully cancelled your booking for the following training:\n\n");
+        emailBody.append("🏋️ Training Type: ").append(trainingDTO.getTrainingType()).append("\n");
+        emailBody.append("🕒 Start Time: ").append(trainingDTO.getStartTime()).append("\n");
+        emailBody.append("⏱️ Duration: ").append(trainingDTO.getDuration()).append(" minutes\n");
+        emailBody.append("👤 Trainer: ").append(trainingDTO.getTrainer()).append("\n");
+        emailBody.append("❗ Cancellation Deadline: ").append(trainingDTO.getCancelDeadline())
+                .append(" hours before start time\n\n");
+        emailBody.append("We're sorry to see you go! If this was a mistake, feel free to book again.\n\n");
+        emailBody.append("Best regards,\nYour Training Center Team");
+
+        message.setText(emailBody.toString());
+        mailSender.send(message);
+    }
+
 
 }

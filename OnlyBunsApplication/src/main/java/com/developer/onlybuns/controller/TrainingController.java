@@ -4,9 +4,12 @@ import com.developer.onlybuns.dto.request.NewTrainingDTO;
 import com.developer.onlybuns.dto.request.TrainingDTO;
 import com.developer.onlybuns.entity.Training;
 import com.developer.onlybuns.service.TrainingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -145,6 +148,7 @@ public class TrainingController {
                     .body("Unexpected error occurred while cancelling booking.");
         }
     }
+
 
 
 }
