@@ -72,25 +72,46 @@ useEffect(() => {
   }, [korisnicko_ime]);
 
   
-
-
-const handleCancelSubmit = (e) => {
-  e.preventDefault();
-  if (!selectedTrainingId || !korisnicko_ime) {
-    setBookingMessage('Please select a training and make sure you are logged in.');
-    return;
-  }
-
-  axios.post(`http://localhost:8080/trainings/cancel?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
-    .then(() => {
-      setBookingMessage('Training cancelled successfully!');
-      fetchBookedTrainings();
-    })
-    .catch((error) => {
-      const message = error.response?.data || 'Failed to cancel training.';
-      setBookingMessage(`${message}`);
-    });
-};
+  const handleCancelSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (!selectedTrainingId || !korisnicko_ime) {
+      setBookingMessage('Please select a training and make sure you are logged in.');
+      return;
+    }
+  
+    try {
+      // Step 1: Fetch training details
+      const trainingResponse = await axios.get(`http://localhost:8080/trainings/${selectedTrainingId}`);
+      const training = trainingResponse.data;
+  
+      // Step 2: Convert startTime array to Date object
+    // Calculate deadline time
+      const startTime = toDateObject(training.startTime);
+      const now = new Date();
+      const cancelDeadlineHours = parseInt(training.cancelDeadline, 10);
+      const latestCancelTime = new Date(startTime.getTime() - cancelDeadlineHours * 60 * 60 * 1000);
+  
+      // Check if current time is before cancel deadline
+      if (now > latestCancelTime) {
+        alert(`You can no longer cancel this booking. Cancellations must be made at least ${training.cancelDeadline} hours before the training starts.`);
+        return;
+      }
+  
+      // Step 4: Call DELETE endpoint
+        await axios.post(`http://localhost:8080/trainings/cancel?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
+        
+        setBookingMessage('Booking cancelled successfully!');
+        fetchBookedTrainings(); // Refresh the booked trainings list
+      } catch (error) {
+        console.error("Error cancelling booking:", error);
+        const message =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          'Failed to cancel booking.';
+        setBookingMessage(message);
+      }
+      };
 
 
 function parseTimeString(timeStr) {
