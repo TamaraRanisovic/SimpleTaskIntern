@@ -11,7 +11,6 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AppBar, Toolbar} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from './photos/posticon.png';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
 const defaultTheme = createTheme();
@@ -185,11 +184,12 @@ export default function Registration() {
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+        <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
           <FitnessCenterIcon />
-        </Avatar>            <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+        </Avatar>       
+        <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
               FitnessApp
-            </Typography>
+        </Typography>
           </Box>
         </Link>
         <Box sx={{ display: 'flex', gap: 2, mr: 2 }}>

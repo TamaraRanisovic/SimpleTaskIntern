@@ -1,24 +1,15 @@
 import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
 import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
 import { AppBar, Toolbar} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from './photos/posticon.png';
-import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, ListItemText, Divider } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import axios from "axios";
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { useParams } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
-
 import {
   Table,
   TableBody,
@@ -33,7 +24,6 @@ import {
   Container,
   Typography,
   Box,
-  CircularProgress,
   Card,
   CardContent,
   Grid,
@@ -58,15 +48,6 @@ export default function TrainingView() {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
   const navigate2 = useNavigate(); // React Router's navigate function to redirect
-  const [openDialog2, setOpenDialog2] = useState(false);
-  const [dialogMessage2, setDialogMessage2] = useState('');
-
-  const [trainingDate, setTrainingDate] = useState(null);
-  const [trainings, setTrainings] = useState([]);
-  const [selectedTrainingId, setSelectedTrainingId] = useState(null);
-  const [bookingMessage, setBookingMessage] = useState('');
-  const [viewType, setViewType] = useState('daily'); // 'daily' or 'weekly'
-
 
 const toDateObject = (dateArray) => {
   if (!Array.isArray(dateArray)) return null;
@@ -90,15 +71,6 @@ const toDateObject = (dateArray) => {
   }, [id]);
 
 
-
-  const handleOpenDialog2 = () => {
-    setDialogMessage2("Feature Coming Soon...");
-    setOpenDialog2(true);
-  };
-
-  const handleCloseDialog2 = () => {
-    setOpenDialog2(false);
-  };
   
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -109,7 +81,7 @@ const toDateObject = (dateArray) => {
     localStorage.removeItem("jwtToken"); // Remove token
 
     // Redirect to login page
-    window.location.href = "/login";  // or use `useNavigate` from React Router v6
+    window.location.href = "/login"; 
   };
 
     
@@ -184,7 +156,6 @@ const handleCancelBooking = (username) => {
     axios
       .delete(`http://localhost:8080/trainings/${training.id}/bookings/${username}`)
       .then(() => {
-        // Remove user from local state
         const updatedUserList = training.users.filter(user => user.username !== username);
         setTraining(prev => ({ ...prev, users: updatedUserList }));
 
@@ -193,7 +164,6 @@ const handleCancelBooking = (username) => {
       .catch(error => {
         console.error("Error cancelling booking:", error);
 
-        // Extract and show a backend-provided error message if present
         const message =
           error.response?.data?.message ||
           error.response?.data?.error ||
@@ -225,23 +195,15 @@ const handleCancelBooking = (username) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openDialog2} onClose={handleCloseDialog2}>
-                          <DialogTitle>Notification</DialogTitle>
-                          <DialogContent>{dialogMessage2}</DialogContent>
-                          <DialogActions>
-                            <Button onClick={handleCloseDialog2} color="primary">
-                              OK
-                            </Button>
-                          </DialogActions>
-      </Dialog>
     <ThemeProvider theme={defaultTheme}>
       <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+          <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
           <FitnessCenterIcon />
-        </Avatar>               <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+        </Avatar>               
+        <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
                 FitnessApp
               </Typography>
             </Box>
@@ -281,10 +243,10 @@ const handleCancelBooking = (username) => {
         </Toolbar>
       </AppBar>
               {training ? (
-<Container maxWidth="lg"> {/* Changed from 'sm' to 'lg' */}
-  <Box sx={{ mt: 6 }}>
-    <Card sx={{ p: 3, borderRadius: 3, boxShadow: 4 }}>
-      <CardContent>
+      <Container maxWidth="lg">
+        <Box sx={{ mt: 6 }}>
+          <Card sx={{ p: 3, borderRadius: 3, boxShadow: 4 }}>
+            <CardContent>
         {/* Existing Training Info */}
         <Grid container spacing={2} alignItems="center" justifyContent="center">
           <Grid item>

@@ -12,29 +12,25 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MenuItem from '@mui/material/MenuItem';
 import { AppBar, Toolbar, FormControl, InputLabel, Select} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from './photos/posticon.png';
-import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, ListItemText, Divider } from '@mui/material';
+
+import { Dialog, DialogActions, DialogContent, DialogTitle} from '@mui/material';
 import axios from "axios";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 
 
 const defaultTheme = createTheme();
 
 export default function BookTrainingTrainer() {
   const [korisnicko_ime, setKorisnickoIme] = useState('');
-
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
-
   const navigate = useNavigate();
   const isMounted = useRef(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  const navigate2 = useNavigate(); // React Router's navigate function to redirect
-  const [openDialog2, setOpenDialog2] = useState(false);
-  const [dialogMessage2, setDialogMessage2] = useState('');
+  const navigate2 = useNavigate();
   const [trainingTime, setTrainingTime] = useState(null);
   const [trainingDate, setTrainingDate] = useState(null);
   const [duration, setDuration] = useState(30);
@@ -82,18 +78,6 @@ const handleSubmit = async (e) => {
     return `${hour.toString().padStart(2, '0')}:${minute}`;
   });
 
-
-
-
-
-  const handleOpenDialog2 = () => {
-    setDialogMessage2("Feature Coming Soon...");
-    setOpenDialog2(true);
-  };
-
-  const handleCloseDialog2 = () => {
-    setOpenDialog2(false);
-  };
   
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -101,10 +85,9 @@ const handleSubmit = async (e) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("jwtToken"); // Remove token
+    localStorage.removeItem("jwtToken"); 
 
-    // Redirect to login page
-    window.location.href = "/login";  // or use `useNavigate` from React Router v6
+    window.location.href = "/login"; 
   };
 
     
@@ -179,25 +162,17 @@ const handleSubmit = async (e) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openDialog2} onClose={handleCloseDialog2}>
-                          <DialogTitle>Notification</DialogTitle>
-                          <DialogContent>{dialogMessage2}</DialogContent>
-                          <DialogActions>
-                            <Button onClick={handleCloseDialog2} color="primary">
-                              OK
-                            </Button>
-                          </DialogActions>
-      </Dialog>
     <ThemeProvider theme={defaultTheme}>
       <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+        <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
           <FitnessCenterIcon />
-        </Avatar>               <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+        </Avatar>              
+        <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
                 FitnessApp
-              </Typography>
+        </Typography>
             </Box>
           </Link>
             <Box sx={{ display: 'flex', gap: 2 }}>

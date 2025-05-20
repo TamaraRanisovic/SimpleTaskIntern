@@ -3,20 +3,15 @@ import { useEffect, useState, useRef } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
 import { AppBar, Toolbar} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from './photos/posticon.png';
 import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, ListItemText, Divider } from '@mui/material';
 import axios from "axios";
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 
 
 const defaultTheme = createTheme();
@@ -27,32 +22,11 @@ export default function CancelTrainingUser() {
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
-
   const navigate = useNavigate();
   const isMounted = useRef(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
   const navigate2 = useNavigate(); // React Router's navigate function to redirect
-  const [openDialog2, setOpenDialog2] = useState(false);
-  const [dialogMessage2, setDialogMessage2] = useState('');
-  const [trainingTime, setTrainingTime] = useState(null);
-    const [trainingDuration, setTrainingDuration] = useState(null);
-
-  const [trainingType, setTrainingType] = useState('');
-const validTimes = [
-  '08:00', '08:30',
-  '09:00', '09:30',
-  '10:00', '10:30',
-  '11:00', '11:30',
-  '12:00', '12:30',
-  '13:00', '13:30',
-  '14:00', '14:30',
-  '15:00', '15:30',
-  '16:00', '16:30',
-  '17:00', '17:30',
-  '18:00', '18:30',
-];
-
   const [trainingDate, setTrainingDate] = useState(null);
   const [trainings, setTrainings] = useState([]);
   const [selectedTrainingId, setSelectedTrainingId] = useState(null);
@@ -81,28 +55,23 @@ useEffect(() => {
     }
   
     try {
-      // Step 1: Fetch training details
       const trainingResponse = await axios.get(`http://localhost:8080/trainings/${selectedTrainingId}`);
       const training = trainingResponse.data;
-  
-      // Step 2: Convert startTime array to Date object
-    // Calculate deadline time
+
       const startTime = toDateObject(training.startTime);
       const now = new Date();
       const cancelDeadlineHours = parseInt(training.cancelDeadline, 10);
       const latestCancelTime = new Date(startTime.getTime() - cancelDeadlineHours * 60 * 60 * 1000);
   
-      // Check if current time is before cancel deadline
       if (now > latestCancelTime) {
         alert(`You can no longer cancel this booking. Cancellations must be made at least ${training.cancelDeadline} hours before the training starts.`);
         return;
       }
   
-      // Step 4: Call DELETE endpoint
         await axios.post(`http://localhost:8080/trainings/cancel?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
         
         setBookingMessage('Booking cancelled successfully!');
-        fetchBookedTrainings(); // Refresh the booked trainings list
+        fetchBookedTrainings();
       } catch (error) {
         console.error("Error cancelling booking:", error);
         const message =
@@ -114,13 +83,6 @@ useEffect(() => {
       };
 
 
-function parseTimeString(timeStr) {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-}
-
 
 const toDateObject = (dateArray) => {
   if (!Array.isArray(dateArray)) return null;
@@ -128,25 +90,6 @@ const toDateObject = (dateArray) => {
   return new Date(year, month - 1, day, hour, minute); // JS months are 0-based
 };
 
-
-function isValidTime(date) {
-  return validTimes.some(t => {
-    const validDate = parseTimeString(t);
-    return validDate.getHours() === date.getHours() &&
-           validDate.getMinutes() === date.getMinutes();
-  });
-}
-
-
-
-  const handleOpenDialog2 = () => {
-    setDialogMessage2("Feature Coming Soon...");
-    setOpenDialog2(true);
-  };
-
-  const handleCloseDialog2 = () => {
-    setOpenDialog2(false);
-  };
   
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -154,10 +97,9 @@ function isValidTime(date) {
   };
 
   const logout = () => {
-    localStorage.removeItem("jwtToken"); // Remove token
+    localStorage.removeItem("jwtToken"); 
 
-    // Redirect to login page
-    window.location.href = "/login";  // or use `useNavigate` from React Router v6
+    window.location.href = "/login";
   };
 
     
@@ -231,23 +173,15 @@ function isValidTime(date) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openDialog2} onClose={handleCloseDialog2}>
-                          <DialogTitle>Notification</DialogTitle>
-                          <DialogContent>{dialogMessage2}</DialogContent>
-                          <DialogActions>
-                            <Button onClick={handleCloseDialog2} color="primary">
-                              OK
-                            </Button>
-                          </DialogActions>
-      </Dialog>
     <ThemeProvider theme={defaultTheme}>
       <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+        <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
           <FitnessCenterIcon />
-        </Avatar>               <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+        </Avatar>             
+        <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
                 FitnessApp
               </Typography>
             </Box>

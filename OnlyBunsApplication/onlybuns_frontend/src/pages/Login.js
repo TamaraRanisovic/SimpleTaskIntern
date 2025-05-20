@@ -1,17 +1,15 @@
-// Importuj potrebne biblioteke
 import React, { useState, useEffect  } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import { Link, useNavigate } from 'react-router-dom'; // Dodaj useNavigate
+import { Link, useNavigate } from 'react-router-dom'; 
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AppBar, Toolbar} from '@mui/material';
-import logo from './photos/gym_logo.png';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
 const defaultTheme = createTheme();
@@ -95,9 +93,10 @@ export default function Login() {
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+          <Avatar sx={{ m: 1, bgcolor: '#283593' }}>  
           <FitnessCenterIcon />
-        </Avatar><Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+          </Avatar>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
               FitnessApp
             </Typography>
           </Box>

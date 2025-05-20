@@ -9,14 +9,12 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
 import { AppBar, Toolbar} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from './photos/posticon.png';
 import { Dialog, DialogActions, DialogContent, DialogTitle,  List, ListItem, ListItemText, Divider } from '@mui/material';
 import axios from "axios";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
@@ -25,36 +23,14 @@ const defaultTheme = createTheme();
 
 export default function BookedTrainings() {
   const [korisnicko_ime, setKorisnickoIme] = useState('');
-
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
-
   const navigate = useNavigate();
   const isMounted = useRef(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  const navigate2 = useNavigate(); // React Router's navigate function to redirect
-  const [openDialog2, setOpenDialog2] = useState(false);
-  const [dialogMessage2, setDialogMessage2] = useState('');
-  const [trainingTime, setTrainingTime] = useState(null);
-    const [trainingDuration, setTrainingDuration] = useState(null);
-
-  const [trainingType, setTrainingType] = useState('');
-const validTimes = [
-  '08:00', '08:30',
-  '09:00', '09:30',
-  '10:00', '10:30',
-  '11:00', '11:30',
-  '12:00', '12:30',
-  '13:00', '13:30',
-  '14:00', '14:30',
-  '15:00', '15:30',
-  '16:00', '16:30',
-  '17:00', '17:30',
-  '18:00', '18:30',
-];
-
+  const navigate2 = useNavigate(); 
   const [trainingDate, setTrainingDate] = useState(null);
   const [trainings, setTrainings] = useState([]);
   const [selectedTrainingId, setSelectedTrainingId] = useState(null);
@@ -102,14 +78,6 @@ const handleBookingSubmit = (e) => {
 };
 
 
-function parseTimeString(timeStr) {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-}
-
-
 const toDateObject = (dateArray) => {
   if (!Array.isArray(dateArray)) return null;
   const [year, month, day, hour, minute] = dateArray;
@@ -117,25 +85,6 @@ const toDateObject = (dateArray) => {
 };
 
 
-function isValidTime(date) {
-  return validTimes.some(t => {
-    const validDate = parseTimeString(t);
-    return validDate.getHours() === date.getHours() &&
-           validDate.getMinutes() === date.getMinutes();
-  });
-}
-
-
-
-  const handleOpenDialog2 = () => {
-    setDialogMessage2("Feature Coming Soon...");
-    setOpenDialog2(true);
-  };
-
-  const handleCloseDialog2 = () => {
-    setOpenDialog2(false);
-  };
-  
   const handleCloseDialog = () => {
     setOpenDialog(false);
     navigate2('/login');
@@ -219,23 +168,15 @@ function isValidTime(date) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openDialog2} onClose={handleCloseDialog2}>
-                          <DialogTitle>Notification</DialogTitle>
-                          <DialogContent>{dialogMessage2}</DialogContent>
-                          <DialogActions>
-                            <Button onClick={handleCloseDialog2} color="primary">
-                              OK
-                            </Button>
-                          </DialogActions>
-      </Dialog>
     <ThemeProvider theme={defaultTheme}>
       <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+        <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
           <FitnessCenterIcon />
-        </Avatar>               <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+        </Avatar>          
+        <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
                 FitnessApp
               </Typography>
             </Box>
