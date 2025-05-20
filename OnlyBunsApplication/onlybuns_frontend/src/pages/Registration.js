@@ -12,6 +12,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AppBar, Toolbar} from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from './photos/posticon.png';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+
 const defaultTheme = createTheme();
 
 export default function Registration() {
@@ -179,13 +181,14 @@ export default function Registration() {
       
     <ThemeProvider theme={defaultTheme}>
       {/* Navigation Bar */}
-      <AppBar position="static" sx={{ bgcolor: '#b4a7d6' }}>
+      <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-            <img src={logo} alt="OnlyBuns Logo" style={{ height: '40px', marginRight: '10px' }} />
-            <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
-              OnlyBuns
+<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+          <FitnessCenterIcon />
+        </Avatar>            <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+              FitnessApp
             </Typography>
           </Box>
         </Link>
@@ -199,7 +202,7 @@ export default function Registration() {
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box sx={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5" sx={{ marginBottom: 2}}>
@@ -214,7 +217,23 @@ export default function Registration() {
             <TextField fullWidth required label="Repeat password" type="password" value={repeatPassword} onChange={(e) => { setRepeatPassword(e.target.value); setPasswordMismatch(false); }} sx={{ mb: 1.5 }} />
             {passwordMismatch && <Typography color="error" variant="body2" gutterBottom>Passwords do not match.</Typography>}
             <TextField fullWidth required label="Phone number" value={phoneNumber} onChange={handlePhoneNumberChange} error={phoneNumberError} helperText={phoneNumberError ? 'Enter 10-digit phone number' : ''} sx={{ mb: 1.5 }} />
-            <Button type="submit" sx={{ padding: '5px 10px', borderRadius: '15px', fontSize: '1rem', fontWeight: 'bold', mt: 2, mb: 3 }} fullWidth variant="contained"  color="secondary">
+            <Button
+              type="submit"
+              sx={{
+                padding: '5px 10px',
+                borderRadius: '15px',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                mt: 2,
+                mb: 3,
+                backgroundColor: '#4FC3F7',
+                '&:hover': {
+                  backgroundColor: '#29B6F6', // Slightly darker on hover
+                },
+              }}
+              fullWidth
+              variant="contained"
+            >
               Sign in
             </Button>
             {errorMessage && <Typography color="error" sx={{ mb: 3}} variant="body2" gutterBottom >{errorMessage}</Typography>}

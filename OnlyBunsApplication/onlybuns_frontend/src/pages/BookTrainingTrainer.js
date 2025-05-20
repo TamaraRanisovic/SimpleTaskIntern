@@ -189,13 +189,14 @@ const handleSubmit = async (e) => {
                           </DialogActions>
       </Dialog>
     <ThemeProvider theme={defaultTheme}>
-      <AppBar position="static" sx={{ bgcolor: '#b4a7d6' }}>
+      <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-              <img src={logo} alt="OnlyBuns Logo" style={{ height: '40px', marginRight: '10px' }} />
-              <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
-                OnlyBuns
+<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+          <FitnessCenterIcon />
+        </Avatar>               <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+                FitnessApp
               </Typography>
             </Box>
           </Link>
@@ -236,7 +237,7 @@ const handleSubmit = async (e) => {
               <Container component="main" maxWidth="sm">
       <CssBaseline />
       <Box component="form" onSubmit={handleSubmit} sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+        <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
           <FitnessCenterIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
@@ -299,9 +300,22 @@ const handleSubmit = async (e) => {
         <TextField label="Cancel Deadline (hours)" type="number" value={cancelDeadline} onChange={(e) => setCancelDeadline(e.target.value)} fullWidth />
 
 
-        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{
+            mt: 3,
+            mb: 2,
+            backgroundColor: '#4FC3F7',
+            '&:hover': {
+              backgroundColor: '#29B6F6', // slightly darker on hover
+            },
+          }}
+        >
           Create Training
         </Button>
+
 
         {message && (
           <Typography sx={{ mt: 2 }} color={message.includes('successfully') ? 'success.main' : 'error'}>

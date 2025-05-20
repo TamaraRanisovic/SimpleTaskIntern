@@ -235,31 +235,26 @@ const handleCancelBooking = (username) => {
                           </DialogActions>
       </Dialog>
     <ThemeProvider theme={defaultTheme}>
-      <AppBar position="static" sx={{ bgcolor: '#b4a7d6' }}>
+      <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-              <img src={logo} alt="OnlyBuns Logo" style={{ height: '40px', marginRight: '10px' }} />
-              <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
-                OnlyBuns
+<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+          <FitnessCenterIcon />
+        </Avatar>               <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+                FitnessApp
               </Typography>
             </Box>
           </Link>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button component={Link} to="/bookTrainingUser" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Feed
+              <Button component={Link} to="/bookedTrainings" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                All trainings
               </Button>
-              <Button component={Link} to="/bookTrainingUser" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Book a training
+              <Button component={Link} to="/bookTrainingTrainer" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Book training
               </Button>
-              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Trends
-              </Button>
-              <Button component={Link} to={`/obliznjeObjave/${korisnicko_ime}`}  color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Nearby Posts
-              </Button>
-              <Button onClick={handleOpenDialog2} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
-                Chat
+              <Button component={Link} to="/cancelTrainingTrainer" color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold' }}>
+                Cancel training
               </Button>
               {token && korisnicko_ime ? ( 
                 <Button onClick={logout} color="inherit" variant="outlined" sx={{ borderRadius: '20px', fontWeight: 'bold'}}>
@@ -359,7 +354,7 @@ const handleCancelBooking = (username) => {
             <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
             <Table>
                 <TableHead>
-                <TableRow sx={{ backgroundColor: 'primary.light' }}>
+                <TableRow sx={{ backgroundColor: '#4FC3F7' }}>
                     <TableCell><strong>#</strong></TableCell>
                     <TableCell><strong>Username</strong></TableCell>
                     <TableCell><strong>Name</strong></TableCell>

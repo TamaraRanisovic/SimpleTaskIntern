@@ -212,13 +212,14 @@ function isValidTime(date) {
                           </DialogActions>
       </Dialog>
     <ThemeProvider theme={defaultTheme}>
-      <AppBar position="static" sx={{ bgcolor: '#b4a7d6' }}>
+      <AppBar position="static" sx={{ bgcolor: '#4FC3F7' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'inherit' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-              <img src={logo} alt="OnlyBuns Logo" style={{ height: '40px', marginRight: '10px' }} />
-              <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
-                OnlyBuns
+<Avatar sx={{ m: 1, bgcolor: '#283593' }}>
+          <FitnessCenterIcon />
+        </Avatar>               <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+                FitnessApp
               </Typography>
             </Box>
           </Link>
@@ -256,7 +257,7 @@ function isValidTime(date) {
           <Container component="main" maxWidth="sm">
       <CssBaseline />
       <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+        <Avatar sx={{ m: 1, bgcolor: '#283593' }}>
           <FitnessCenterIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
@@ -298,15 +299,23 @@ function isValidTime(date) {
             </List>
 
             <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={!selectedTrainingId}
-              onClick={handleBookingSubmit}
-            >
-              Book Selected Training
-            </Button>
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{
+              mt: 3,
+              mb: 2,
+              backgroundColor: '#4FC3F7',
+              '&:hover': {
+                backgroundColor: '#29B6F6', // slightly darker shade on hover
+              },
+            }}
+            disabled={!selectedTrainingId}
+            onClick={handleBookingSubmit}
+          >
+            Book Selected Training
+          </Button>
+
           </>
         ) : trainingDate ? (
           <Typography sx={{ mt: 2 }}>No trainings available for selected day.</Typography>
