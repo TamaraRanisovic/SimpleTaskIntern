@@ -16,6 +16,19 @@ import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-picker
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { useParams } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
+} from '@mui/material';
+
 import {
   Container,
   Typography,
@@ -149,6 +162,25 @@ const toDateObject = (dateArray) => {
   }, [token, navigate]);
 
 
+const handleCancelBooking = (userId) => {
+  if (window.confirm("Are you sure you want to cancel this booking?")) {
+    axios
+      .delete(`/trainings/${training.id}/bookings/${userId}`)
+      .then(() => {
+        // Option 1: Filter out the user from local state
+        const updatedUsers = training.users.filter(user => user.id !== userId);
+        setTraining({ ...training, users: updatedUsers });
+
+        // Optionally, show success message
+        alert('Booking successfully cancelled.');
+      })
+      .catch(error => {
+        console.error("Error cancelling booking:", error);
+        alert('An error occurred while cancelling the booking.');
+      });
+  }
+};
+
 
   useEffect(() => {
     isMounted.current = true;
@@ -231,72 +263,131 @@ const toDateObject = (dateArray) => {
         </Toolbar>
       </AppBar>
               {training ? (
-  <Container maxWidth="sm">
-    <Box sx={{ mt: 6 }}>
-      <Card sx={{ p: 3, borderRadius: 3, boxShadow: 4 }}>
-        <CardContent>
-          <Grid container spacing={2} alignItems="center" justifyContent="center">
-            <Grid item>
-              <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
-                <FitnessCenterIcon />
-              </Avatar>
+<Container maxWidth="lg"> {/* Changed from 'sm' to 'lg' */}
+  <Box sx={{ mt: 6 }}>
+    <Card sx={{ p: 3, borderRadius: 3, boxShadow: 4 }}>
+      <CardContent>
+        {/* Existing Training Info */}
+        <Grid container spacing={2} alignItems="center" justifyContent="center">
+          <Grid item>
+            <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+              <FitnessCenterIcon />
+            </Avatar>
+          </Grid>
+          <Grid item>
+            <Typography variant="h4" gutterBottom>
+              {training.trainingType}
+            </Typography>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <EventIcon sx={{ mr: 1 }} />
+                <Typography variant="subtitle1">
+                  {toDateObject(training.startTime).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Typography>
+              </Box>
             </Grid>
-            <Grid item>
-              <Typography variant="h4" gutterBottom>
-                {training.trainingType}
-              </Typography>
+
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <AccessTimeIcon sx={{ mr: 1 }} />
+                <Typography variant="subtitle1">
+                  Duration: {training.duration} min
+                </Typography>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <PersonIcon sx={{ mr: 1 }} />
+                <Typography variant="subtitle1">
+                  Trainer: {training.trainer}
+                </Typography>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <CancelScheduleSendIcon sx={{ mr: 1 }} />
+                <Typography variant="subtitle1">
+                  Cancel up to {training.cancelDeadline} hrs before
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
+        </Box>
 
-          <Box sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <EventIcon sx={{ mr: 1 }} />
-                  <Typography variant="subtitle1">
-                    {toDateObject(training.startTime).toLocaleString('en-US', {
-                    year: 'numeric',     // e.g., 2025
-                    month: 'long',       // e.g., May
-                    day: 'numeric',      // e.g., 19
-                    hour: '2-digit',     // e.g., 02 PM
-                    minute: '2-digit'    // e.g., :30
-                    })}
-                  </Typography>
-                </Box>
-              </Grid>
+        {/* Booked Users Table */}
+        <Box sx={{ mt: 5 }}>
+          <Typography variant="h6" gutterBottom>
+            Booked users
+          </Typography>
+          {training.users && training.users.length > 0 ? (
+            <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+            <Table>
+                <TableHead>
+                <TableRow sx={{ backgroundColor: 'primary.light' }}>
+                    <TableCell><strong>#</strong></TableCell>
+                    <TableCell><strong>Username</strong></TableCell>
+                    <TableCell><strong>Name</strong></TableCell>
+                    <TableCell><strong>Surname</strong></TableCell>
+                    <TableCell><strong>Email</strong></TableCell>
+                    <TableCell><strong>Phone number</strong></TableCell>
+                    <TableCell align="center"><strong>Actions</strong></TableCell> {/* New column */}
+                </TableRow>
+                </TableHead>
+                <TableBody>
+                {training.users.map((user, index) => (
+                    <TableRow
+                    key={user.id || index}
+                    sx={{
+                        '&:nth-of-type(odd)': { backgroundColor: 'grey.100' },
+                        '&:hover': { backgroundColor: 'grey.200' },
+                    }}
+                    >
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.surname}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.phoneNumber}</TableCell>
+                    <TableCell align="center">
+                        <IconButton
+                        color="error"
+                        onClick={() => handleCancelBooking(user.id)}
+                        aria-label="cancel booking"
+                        >
+                        <DeleteIcon />
+                        </IconButton>
+                    </TableCell>
+                    </TableRow>
+                ))}
+                </TableBody>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccessTimeIcon sx={{ mr: 1 }} />
-                  <Typography variant="subtitle1">
-                    Duration: {training.duration} min
-                  </Typography>
-                </Box>
-              </Grid>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Typography variant="body2" sx={{ mt: 2 }}>
+              No users have booked this training yet.
+            </Typography>
+          )}
+        </Box>
+      </CardContent>
+    </Card>
+  </Box>
+</Container>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <PersonIcon sx={{ mr: 1 }} />
-                  <Typography variant="subtitle1">
-                    Trainer: {training.trainer}
-                  </Typography>
-                </Box>
-              </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CancelScheduleSendIcon sx={{ mr: 1 }} />
-                  <Typography variant="subtitle1">
-                    Cancel up to {training.cancelDeadline} hrs before
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
-  </Container>
 ) : (
   <Typography variant="h6" align="center" sx={{ mt: 6 }}>
     Loading training data...

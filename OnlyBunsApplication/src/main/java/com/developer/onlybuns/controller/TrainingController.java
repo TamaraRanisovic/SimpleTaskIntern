@@ -129,4 +129,11 @@ public class TrainingController {
         return trainingService.getTrainingsForWeekByTrainer(startOfWeek, trainerUsername);
     }
 
+
+    @DeleteMapping("/{trainingId}/bookings/{userId}")
+    public ResponseEntity<Void> cancelBooking(@PathVariable Integer trainingId, @PathVariable Integer userId) {
+        trainingService.cancelBooking(trainingId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

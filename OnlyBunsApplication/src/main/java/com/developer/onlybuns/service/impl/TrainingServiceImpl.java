@@ -282,4 +282,19 @@ public class TrainingServiceImpl implements TrainingService {
         trainingRepository.delete(training);
     }
 
+
+    @Override
+    public void cancelBooking(Integer trainingId, Integer userId) {
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new EntityNotFoundException("Training not found"));
+
+        RegisteredUser user = registeredUserRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Remove the user from the training's user set
+        training.getUsers().remove(user);
+        user.getTrainings().remove(training);
+        trainingRepository.save(training);
+        registeredUserRepository.save(user);
+    }
 }
