@@ -284,17 +284,25 @@ public class TrainingServiceImpl implements TrainingService {
 
 
     @Override
-    public void cancelBooking(Integer trainingId, Integer userId) {
+    @Transactional
+    public void cancelBookingByUser(Integer trainingId, String username) {
         Training training = trainingRepository.findById(trainingId)
                 .orElseThrow(() -> new EntityNotFoundException("Training not found"));
 
-        RegisteredUser user = registeredUserRepository.findById(userId)
+        RegisteredUser user = registeredUserRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Remove the user from the training's user set
+        // Check if user is actually booked for this training
+        if (!training.getUsers().contains(user)) {
+            throw new EntityNotFoundException("User is not booked for this training");
+        }
+
+        // Remove the user from both sides of the relationship
         training.getUsers().remove(user);
         user.getTrainings().remove(training);
+
         trainingRepository.save(training);
         registeredUserRepository.save(user);
     }
+
 }

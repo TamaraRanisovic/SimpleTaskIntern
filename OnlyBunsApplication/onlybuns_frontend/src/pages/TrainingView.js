@@ -162,24 +162,35 @@ const toDateObject = (dateArray) => {
   }, [token, navigate]);
 
 
-const handleCancelBooking = (userId) => {
+const handleCancelBooking = (username) => {
+  if (!training || !training.id) {
+    alert("Training data is missing.");
+    return;
+  }
+
   if (window.confirm("Are you sure you want to cancel this booking?")) {
     axios
-      .delete(`/trainings/${training.id}/bookings/${userId}`)
+      .delete(`http://localhost:8080/trainings/${training.id}/bookings/${username}`)
       .then(() => {
-        // Option 1: Filter out the user from local state
-        const updatedUsers = training.users.filter(user => user.id !== userId);
-        setTraining({ ...training, users: updatedUsers });
+        // Remove user from local state
+        const updatedUserList = training.users.filter(user => user.username !== username);
+        setTraining(prev => ({ ...prev, users: updatedUserList }));
 
-        // Optionally, show success message
-        alert('Booking successfully cancelled.');
+        alert("Booking successfully cancelled.");
       })
       .catch(error => {
         console.error("Error cancelling booking:", error);
-        alert('An error occurred while cancelling the booking.');
+
+        // Extract and show a backend-provided error message if present
+        const message =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "An error occurred while cancelling the booking.";
+        alert(message);
       });
   }
 };
+
 
 
   useEffect(() => {
@@ -364,7 +375,7 @@ const handleCancelBooking = (userId) => {
                     <TableCell align="center">
                         <IconButton
                         color="error"
-                        onClick={() => handleCancelBooking(user.id)}
+                        onClick={() => handleCancelBooking(user.username)}
                         aria-label="cancel booking"
                         >
                         <DeleteIcon />

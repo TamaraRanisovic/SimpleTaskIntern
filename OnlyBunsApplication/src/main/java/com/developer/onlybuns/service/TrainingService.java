@@ -34,6 +34,6 @@ public interface TrainingService {
     List<TrainingDTO> getTrainingsForDayByTrainer(LocalDate date, String trainerUsername);
     List<TrainingDTO> getTrainingsForWeekByTrainer(LocalDate startOfWeek, String trainerUsername);
 
-    void cancelBooking(Integer trainingId, Integer userId);
+    void cancelBookingByUser(Integer trainingId, String username);
 
 }
