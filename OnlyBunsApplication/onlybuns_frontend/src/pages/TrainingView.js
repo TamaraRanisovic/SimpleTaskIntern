@@ -1,13 +1,9 @@
 import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MenuItem from '@mui/material/MenuItem';
 import { AppBar, Toolbar} from '@mui/material';
@@ -19,11 +15,25 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-
+import { useParams } from 'react-router-dom';
+import {
+  Container,
+  Typography,
+  Box,
+  CircularProgress,
+  Card,
+  CardContent,
+  Grid,
+  Avatar,
+} from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PersonIcon from '@mui/icons-material/Person';
+import EventIcon from '@mui/icons-material/Event';
+import CancelScheduleSendIcon from '@mui/icons-material/CancelScheduleSend';
 
 const defaultTheme = createTheme();
 
-export default function BookedTrainings() {
+export default function TrainingView() {
   const [korisnicko_ime, setKorisnickoIme] = useState('');
 
   const token = localStorage.getItem('jwtToken'); // Get JWT token from localStorage
@@ -37,77 +47,12 @@ export default function BookedTrainings() {
   const navigate2 = useNavigate(); // React Router's navigate function to redirect
   const [openDialog2, setOpenDialog2] = useState(false);
   const [dialogMessage2, setDialogMessage2] = useState('');
-  const [trainingTime, setTrainingTime] = useState(null);
-    const [trainingDuration, setTrainingDuration] = useState(null);
-
-  const [trainingType, setTrainingType] = useState('');
-const validTimes = [
-  '08:00', '08:30',
-  '09:00', '09:30',
-  '10:00', '10:30',
-  '11:00', '11:30',
-  '12:00', '12:30',
-  '13:00', '13:30',
-  '14:00', '14:30',
-  '15:00', '15:30',
-  '16:00', '16:30',
-  '17:00', '17:30',
-  '18:00', '18:30',
-];
 
   const [trainingDate, setTrainingDate] = useState(null);
   const [trainings, setTrainings] = useState([]);
   const [selectedTrainingId, setSelectedTrainingId] = useState(null);
   const [bookingMessage, setBookingMessage] = useState('');
   const [viewType, setViewType] = useState('daily'); // 'daily' or 'weekly'
-
-useEffect(() => {
-  if (!trainingDate) return;
-
-  const fetchTrainings = async () => {
-    try {
-      const formattedDate = trainingDate.toLocaleDateString('en-CA');
-      const endpoint =
-        viewType === 'daily'
-          ? `http://localhost:8080/trainings/trainer/day?date=${formattedDate}&trainerUsername=${korisnicko_ime}`
-          : `http://localhost:8080/trainings/trainer/week?startOfWeek=${formattedDate}&trainerUsername=${korisnicko_ime}`;
-
-      const response = await axios.get(endpoint);
-      setTrainings(response.data);
-    } catch (error) {
-      setTrainings([]);
-      console.error('Failed to fetch trainings:', error);
-    }
-  };
-
-  fetchTrainings();
-}, [trainingDate, viewType, korisnicko_ime]);
-
-
-const handleBookingSubmit = (e) => {
-  e.preventDefault();
-  if (!selectedTrainingId || !korisnicko_ime) {
-    setBookingMessage('Please select a training and make sure you are logged in.');
-    return;
-  }
-
-  axios.post(`http://localhost:8080/trainings/book?trainingId=${selectedTrainingId}&username=${korisnicko_ime}`)
-    .then(() => {
-      setBookingMessage('Training booked successfully!');
-    })
-    .catch((error) => {
-      const message = error.response?.data || 'Failed to book training.';
-      setBookingMessage(`${message}`);
-    });
-};
-
-
-function parseTimeString(timeStr) {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-}
 
 
 const toDateObject = (dateArray) => {
@@ -116,14 +61,20 @@ const toDateObject = (dateArray) => {
   return new Date(year, month - 1, day, hour, minute); // JS months are 0-based
 };
 
+  const { id } = useParams();
+  const [training, setTraining] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-function isValidTime(date) {
-  return validTimes.some(t => {
-    const validDate = parseTimeString(t);
-    return validDate.getHours() === date.getHours() &&
-           validDate.getMinutes() === date.getMinutes();
-  });
-}
+  useEffect(() => {
+    axios.get(`http://localhost:8080/trainings/${id}`)
+      .then(response => {
+        setTraining(response.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [id]);
 
 
 
@@ -279,78 +230,78 @@ function isValidTime(date) {
           </Box>
         </Toolbar>
       </AppBar>
-          <Container component="main" maxWidth="sm">
-      <CssBaseline />
-      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <FitnessCenterIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Available Trainings
-        </Typography>
-        <ToggleButtonGroup
-        value={viewType}
-        exclusive
-        onChange={(event, newView) => {
-            if (newView) {
-            setViewType(newView);
-            setSelectedTrainingId(null);
-            setBookingMessage('');
-            }
-        }}
-        sx={{ mt: 2 }}
-        >
-        <ToggleButton value="daily">Daily</ToggleButton>
-        <ToggleButton value="weekly">Weekly</ToggleButton>
-        </ToggleButtonGroup>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            label="Select a date"
-            value={trainingDate}
-            onChange={(newValue) => {
-              setTrainingDate(newValue);
-              setSelectedTrainingId(null);
-              setBookingMessage('');
-            }}
-            renderInput={(params) => <TextField margin="normal" fullWidth {...params} />}
-          />
-        </LocalizationProvider>
+              {training ? (
+  <Container maxWidth="sm">
+    <Box sx={{ mt: 6 }}>
+      <Card sx={{ p: 3, borderRadius: 3, boxShadow: 4 }}>
+        <CardContent>
+          <Grid container spacing={2} alignItems="center" justifyContent="center">
+            <Grid item>
+              <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+                <FitnessCenterIcon />
+              </Avatar>
+            </Grid>
+            <Grid item>
+              <Typography variant="h4" gutterBottom>
+                {training.trainingType}
+              </Typography>
+            </Grid>
+          </Grid>
 
-        {trainings.length > 0 ? (
-          <>
-            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-              {trainings.map((training) => (
-                <React.Fragment key={training.id}>
-                  <ListItem
-                    button
-                    selected={selectedTrainingId === training.id}
-                    onClick={() => navigate(`/trainingView/${training.id}`)}
-                  >
-                    <ListItemText
-                      primary={`${toDateObject(training.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${training.trainingType}`}
-                      secondary={`Duration: ${training.duration} min, Trainer: ${training.trainer}`}
-                    />
-                  </ListItem>
-                  <Divider />
-                </React.Fragment>
-              ))}
-            </List>
+          <Box sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <EventIcon sx={{ mr: 1 }} />
+                  <Typography variant="subtitle1">
+                    {toDateObject(training.startTime).toLocaleString('en-US', {
+                    year: 'numeric',     // e.g., 2025
+                    month: 'long',       // e.g., May
+                    day: 'numeric',      // e.g., 19
+                    hour: '2-digit',     // e.g., 02 PM
+                    minute: '2-digit'    // e.g., :30
+                    })}
+                  </Typography>
+                </Box>
+              </Grid>
 
-            
-             
-          </>
-        ) : trainingDate ? (
-          <Typography sx={{ mt: 2 }}>No trainings available for selected day.</Typography>
-        ) : null}
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccessTimeIcon sx={{ mr: 1 }} />
+                  <Typography variant="subtitle1">
+                    Duration: {training.duration} min
+                  </Typography>
+                </Box>
+              </Grid>
 
-        {bookingMessage && (
-          <Typography color="success.main" sx={{ mt: 2 }}>
-            {bookingMessage}
-          </Typography>
-        )}
-      </Box>
-    </Container>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <PersonIcon sx={{ mr: 1 }} />
+                  <Typography variant="subtitle1">
+                    Trainer: {training.trainer}
+                  </Typography>
+                </Box>
+              </Grid>
 
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CancelScheduleSendIcon sx={{ mr: 1 }} />
+                  <Typography variant="subtitle1">
+                    Cancel up to {training.cancelDeadline} hrs before
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
+  </Container>
+) : (
+  <Typography variant="h6" align="center" sx={{ mt: 6 }}>
+    Loading training data...
+  </Typography>
+)}
 
 
     </ThemeProvider>

@@ -31,7 +31,7 @@ public class TrainingController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Training> findById(@PathVariable("id") Integer id) {
+    public TrainingDTO findById(@PathVariable("id") Integer id) {
         return trainingService.findById(id);
     }
 

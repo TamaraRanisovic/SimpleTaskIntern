@@ -40,8 +40,21 @@ public class TrainingServiceImpl implements TrainingService {
         this.trainerRepository = trainerRepository;
     }
 
-    public Optional<Training> findById(Integer id) {
-        return trainingRepository.findById(id);
+    public TrainingDTO findById(Integer id) {
+        Training training = trainingRepository.getById(id);
+
+        if (training == null) {
+            throw new EntityNotFoundException("Training with id " + id + " not found.");
+        }
+
+        Set<RegisteredUserDTO> usersDTO = new HashSet<RegisteredUserDTO>();
+        for (RegisteredUser user : training.getUsers()) {
+            RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user.getUsername(), user.getEmail(), user.getName(), user.getSurname(), user.getPhoneNumber());
+            usersDTO.add(registeredUserDTO);
+        }
+        TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getCancelDeadline(), training.getTrainer().getUsername(), usersDTO);
+
+        return trainingDTO;
     }
 
     public List<Training> findAll() {
@@ -65,7 +78,7 @@ public class TrainingServiceImpl implements TrainingService {
                 RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user.getUsername(), user.getEmail(), user.getName(), user.getSurname(), user.getPhoneNumber());
                 usersDTO.add(registeredUserDTO);
             }
-            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
+            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getCancelDeadline(), training.getTrainer().getUsername(), usersDTO);
             trainingsDTO.add(trainingDTO);
         }
 
@@ -84,7 +97,7 @@ public class TrainingServiceImpl implements TrainingService {
                 RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user.getUsername(), user.getEmail(), user.getName(), user.getSurname(), user.getPhoneNumber());
                 usersDTO.add(registeredUserDTO);
             }
-            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
+            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getCancelDeadline(), training.getTrainer().getUsername(), usersDTO);
             trainingsDTO.add(trainingDTO);
         }
 
@@ -182,7 +195,7 @@ public class TrainingServiceImpl implements TrainingService {
                 RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user1.getUsername(), user1.getEmail(), user1.getName(), user1.getSurname(), user1.getPhoneNumber());
                 usersDTO.add(registeredUserDTO);
             }
-            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
+            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getCancelDeadline(), training.getTrainer().getUsername(), usersDTO);
             trainingsDTO.add(trainingDTO);
         }
 
@@ -244,7 +257,7 @@ public class TrainingServiceImpl implements TrainingService {
                 RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO(user1.getUsername(), user1.getEmail(), user1.getName(), user1.getSurname(), user1.getPhoneNumber());
                 usersDTO.add(registeredUserDTO);
             }
-            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getTrainer().getUsername(), usersDTO);
+            TrainingDTO trainingDTO = new TrainingDTO(training.getId(), training.getDuration(), training.getStartTime(), training.getTrainingType(), training.getCancelDeadline(), training.getTrainer().getUsername(), usersDTO);
             trainingsDTO.add(trainingDTO);
         }
 

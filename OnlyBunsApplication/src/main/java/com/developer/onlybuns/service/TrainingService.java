@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TrainingService {
-    Optional<Training> findById(Integer id);
+    TrainingDTO findById(Integer id);
 
     List<Training> findAll();
 

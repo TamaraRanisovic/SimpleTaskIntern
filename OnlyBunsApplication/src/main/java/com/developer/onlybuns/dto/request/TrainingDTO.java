@@ -26,13 +26,22 @@ public class TrainingDTO {
         this.users = new HashSet<RegisteredUserDTO>();
     }
 
-    public TrainingDTO(Integer id, Integer duration, LocalDateTime startTime, TrainingType trainingType, String trainer, Set<RegisteredUserDTO> users) {
+    public TrainingDTO(Integer id, Integer duration, LocalDateTime startTime, TrainingType trainingType, Integer cancelDeadline, String trainer, Set<RegisteredUserDTO> users) {
         this.id = id;
         this.duration = duration;
         this.startTime = startTime;
         this.trainingType = trainingType;
+        this.cancelDeadline = cancelDeadline;
         this.trainer = trainer;
         this.users = users;
+    }
+
+    public Integer getCancelDeadline() {
+        return cancelDeadline;
+    }
+
+    public void setCancelDeadline(Integer cancelDeadline) {
+        this.cancelDeadline = cancelDeadline;
     }
 
     public Integer getId() {
