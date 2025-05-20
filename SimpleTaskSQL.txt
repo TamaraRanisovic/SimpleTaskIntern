@@ -1,0 +1,43 @@
+INSERT INTO public.users (id, username, email, password, name, surname, phone_number, role, activation_token, is_verified, type)
+VALUES 
+(1, 'trainer.ana', 'ana.trainer@example.com', 'pass123', 'Ana', 'Petrović', '0601111222', 'TRAINER', NULL, true, 'Trainer'),
+
+(2, 'trainer.milan', 'milan.trainer@example.com', 'pass123', 'Milan', 'Jovanović', '0612233445', 'TRAINER', NULL, true, 'Trainer'),
+
+(3, 'trainer.jelena', 'jelena.trainer@example.com', 'pass123', 'Jelena', 'Marković', '0623344556', 'TRAINER', NULL, true, 'Trainer'),
+
+(4, 'trainer.marko', 'marko.trainer@example.com', 'pass123', 'Marko', 'Stojanović', '0634455667', 'TRAINER', NULL, true, 'Trainer'),
+
+(5, 'trainer.tamara', 'tamara.trainer@example.com', 'pass123', 'Tamara', 'Lukić', '0645566778', 'TRAINER', NULL, true, 'Trainer');
+
+
+INSERT INTO public.users (id, username, email, password, name, surname, phone_number, role, activation_token, is_verified, type)
+VALUES 
+(6, 'user.jovana', 'jovana.user@example.com', 'userpass1', 'Jovana', 'Nikolić', '0651111222', 'REGISTERED_USER', NULL, true, 'RegisteredUser'),
+(7, 'user.stefan', 'stefan.user@example.com', 'userpass2', 'Stefan', 'Milanković', '0662233445', 'REGISTERED_USER', NULL, true, 'RegisteredUser'),
+(8, 'user.katarina', 'katarina.user@example.com', 'userpass3', 'Katarina', 'Ilić', '0673344556', 'REGISTERED_USER', NULL, true, 'RegisteredUser'),
+(9, 'user.lazar', 'lazar.user@example.com', 'userpass4', 'Lazar', 'Vasić', '0684455667', 'REGISTERED_USER', NULL, true, 'RegisteredUser'),
+(10, 'user.teodora', 'teodora.user@example.com', 'userpass5', 'Teodora', 'Ristić', '0695566778', 'REGISTERED_USER', NULL, true, 'RegisteredUser');
+
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (1, 30, '2025-05-20T09:00:00', 'CARDIO', 1, 24);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (2, 60, '2025-05-20T10:00:00', 'STRENGTH', 2, 36);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (3, 30, '2025-05-20T11:30:00', 'YOGA', 3, 48);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (4, 60, '2025-05-21T08:00:00', 'CARDIO', 1, 24);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (5, 30, '2025-05-21T09:30:00', 'FUNCTIONAL', 2, 36);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (6, 60, '2025-05-22T10:00:00', 'YOGA', 3, 48);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (7, 30, '2025-05-22T11:00:00', 'STRENGTH', 1, 24);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (8, 60, '2025-05-23T07:00:00', 'CARDIO', 2, 36);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (9, 30, '2025-05-23T08:30:00', 'FUNCTIONAL', 3, 48);
+INSERT INTO public.training (id, duration, start_time, type, trainer_id, cancel_deadline) VALUES (10, 60, '2025-05-24T10:00:00', 'YOGA', 1, 24);
+
+
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (6, 1);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (6, 2);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (7, 3);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (7, 4);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (8, 5);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (8, 6);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (9, 7);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (9, 8);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (10, 9);
+INSERT INTO public.booked_trainings (registered_user_id, training_id) VALUES (10, 10);
