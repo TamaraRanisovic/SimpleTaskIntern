@@ -175,6 +175,18 @@ public class TrainingServiceImpl implements TrainingService {
             throw new RuntimeException("User has not booked this training");
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = training.getStartTime(); // Assuming this is LocalDateTime
+        int cancelDeadlineHours = training.getCancelDeadline(); // Number of hours before start
+
+        LocalDateTime latestCancelTime = startTime.minusHours(cancelDeadlineHours);
+
+        if (now.isAfter(latestCancelTime)) {
+            throw new IllegalStateException(
+                    String.format("You can no longer cancel this booking. Cancellations must be made at least %d hours before training start.", cancelDeadlineHours)
+            );
+        }
+
         training.getUsers().remove(user);
         user.getTrainings().remove(training);
         trainingRepository.save(training);
@@ -270,6 +282,18 @@ public class TrainingServiceImpl implements TrainingService {
                 .orElseThrow(() -> new EntityNotFoundException("Training with id " + id + " not found."));
 
         // Manually remove training from each user's set of trainings
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = training.getStartTime(); // Assuming this is LocalDateTime
+        int cancelDeadlineHours = training.getCancelDeadline(); // Number of hours before start
+
+        LocalDateTime latestCancelTime = startTime.minusHours(cancelDeadlineHours);
+
+        if (now.isAfter(latestCancelTime)) {
+            throw new IllegalStateException(
+                    String.format("You can no longer cancel this booking. Cancellations must be made at least %d hours before training start.", cancelDeadlineHours)
+            );
+        }
+
         Set<RegisteredUser> users = training.getUsers();
         if (users != null) {
             for (RegisteredUser user : users) {
@@ -295,6 +319,18 @@ public class TrainingServiceImpl implements TrainingService {
         // Check if user is actually booked for this training
         if (!training.getUsers().contains(user)) {
             throw new EntityNotFoundException("User is not booked for this training");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startTime = training.getStartTime(); // Assuming this is LocalDateTime
+        int cancelDeadlineHours = training.getCancelDeadline(); // Number of hours before start
+
+        LocalDateTime latestCancelTime = startTime.minusHours(cancelDeadlineHours);
+
+        if (now.isAfter(latestCancelTime)) {
+            throw new IllegalStateException(
+                    String.format("You can no longer cancel this booking. Cancellations must be made at least %d hours before training start.", cancelDeadlineHours)
+            );
         }
 
         // Remove the user from both sides of the relationship
